@@ -49,7 +49,7 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
   const handleLogout = async () => {
     await logoutAdmin();
     toast.success('Logged out successfully');
-    router.push('/omcreationloginpafe2021222324');
+    router.push('/riklicreationloginpafe2021222324');
   };
 
   const handleGenerateUrls = async (e: React.ChangeEvent<HTMLInputElement>) => {

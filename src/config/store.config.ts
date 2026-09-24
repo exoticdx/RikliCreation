@@ -49,7 +49,7 @@ export interface StoreConfig {
 // CONFIGURE YOUR CLIENT'S STORE HERE
 // ---------------------------------------------------------
 export const STORE_CONFIG: StoreConfig = {
-  storeName: "Om Creation",
+  storeName: "Rikli Creation",
   themeColor: "#9c5c41",
   whatsappNumber: "919510072745",
   maxImagesPerProduct: 5,

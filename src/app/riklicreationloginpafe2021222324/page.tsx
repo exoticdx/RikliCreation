@@ -17,7 +17,7 @@ export default function LoginPage() {
       const result = await loginAdmin(password);
       if (result.success) {
         toast.success('Logged in successfully');
-        router.push('/omcreationadminpafe2021222324');
+        router.push('/riklicreationadminpafe2021222324');
       } else {
         toast.error(result.error || 'Login failed');
       }

@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Om Creation | Wholesale Catalogue",
-  description: "Browse our exclusive collection of premium products at Om Creation.",
+  title: "Rikli Creation | Wholesale Catalogue",
+  description: "Browse our exclusive collection of premium products at Rikli Creation.",
 };
 
 import ClientToaster from "@/components/ClientToaster";
