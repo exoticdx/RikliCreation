@@ -81,6 +81,7 @@ export const STORE_CONFIG: StoreConfig = {
       key: 'in_stock',
       label: 'In Stock',
       type: 'boolean',
+      defaultValue: true,
       isFilterable: false,
       isSortable: false
     }
