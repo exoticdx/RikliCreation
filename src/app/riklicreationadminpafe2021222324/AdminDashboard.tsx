@@ -230,7 +230,7 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
         });
       }
       
-      setNewProduct({ sku: '', name: '', description: '', categoryId: '', attributes: {} });
+      const initialAttrs: any = {}; STORE_CONFIG.customFields.forEach(f => { if (f.defaultValue !== undefined) initialAttrs[f.key] = f.defaultValue; }); setNewProduct({ sku: '', name: '', description: '', categoryId: '', attributes: initialAttrs });
       setImageUrls([]);
       setEditingProductId(null);
       setIsAddProductOpen(false);
@@ -452,7 +452,7 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
               <h2 className="text-xl font-semibold text-black">Inventory ({products.length})</h2>
               <button onClick={() => {
                 setEditingProductId(null);
-                setNewProduct({ sku: '', name: '', description: '', categoryId: '', attributes: {} });
+                const initialAttrs: any = {}; STORE_CONFIG.customFields.forEach(f => { if (f.defaultValue !== undefined) initialAttrs[f.key] = f.defaultValue; }); setNewProduct({ sku: '', name: '', description: '', categoryId: '', attributes: initialAttrs });
                 setImageUrls([]);
                 setIsAddProductOpen(true);
               }} className="bg-brand text-white px-4 py-2 rounded-lg flex items-center font-medium shadow-sm hover:bg-brand-dark transition-colors">

@@ -5,6 +5,7 @@ export interface CustomField {
   label: string;          // The user-facing label (e.g., 'Stitch Count')
   type: FieldType;        // Type of input/data
   options?: string[];     // Required if type is 'select'
+  defaultValue?: any;     // Default value when adding new product or downloading template
   isFilterable?: boolean; // Should this appear in the sidebar filters?
   isSortable?: boolean;   // Should this appear in the sort dropdown?
 }

@@ -102,6 +102,18 @@ export async function GET() {
     // Style header
     sheet.getRow(1).font = { bold: true };
     sheet.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0E0E0' } };
+    // Add default row if any default values exist
+    const defaultRow: any = {};
+    STORE_CONFIG.customFields.forEach(field => {
+      if (field.defaultValue !== undefined) {
+        const headerName = `Attr: ${field.label}`;
+        const col = columns.find(c => c.header === headerName);
+        if (col && col.key) defaultRow[col.key] = field.type === 'boolean' ? (field.defaultValue ? 'Yes' : 'No') : field.defaultValue;
+      }
+    });
+    if (Object.keys(defaultRow).length > 0) {
+      sheet.addRow(defaultRow);
+    }
 
     const buffer = await workbook.xlsx.writeBuffer();
     
