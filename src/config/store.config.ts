@@ -39,7 +39,12 @@ export type LayoutComponent = HeroCarouselConfig | BannerConfig | TextContentCon
 
 export interface StoreConfig {
   storeName: string;
-  themeColor: string;
+  colors: {
+    navHeading: string;
+    buttonBackground: string;
+    buttonText: string;
+    textContent: string;
+  };
   whatsappNumber: string;
   maxImagesPerProduct: number;
   customFields: CustomField[];
@@ -51,7 +56,12 @@ export interface StoreConfig {
 // ---------------------------------------------------------
 export const STORE_CONFIG: StoreConfig = {
   storeName: "Rikli Creation",
-  themeColor: "#9c5c41",
+  colors: {
+    navHeading: "#000000",       // Color for the store name in navbar
+    buttonBackground: "#000000", // Color for buttons (like Inquire, Add Product)
+    buttonText: "#ffffff",       // Text color inside buttons
+    textContent: "#000000"       // Color for product names and general front-end text
+  },
   whatsappNumber: "919510072745",
   maxImagesPerProduct: 5,
   customFields: [

@@ -10,8 +10,15 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --color-brand: var(--theme-color, #7a0232);
-  --color-brand-dark: color-mix(in srgb, var(--theme-color, #7a0232) 80%, black);
+  
+  --color-nav-heading: var(--theme-nav-heading, #000000);
+  --color-button-bg: var(--theme-button-bg, #000000);
+  --color-button-text: var(--theme-button-text, #ffffff);
+  --color-content-text: var(--theme-content-text, #000000);
+  
+  /* Fallbacks for existing brand classes */
+  --color-brand: var(--theme-button-bg, #000000);
+  --color-brand-dark: color-mix(in srgb, var(--theme-button-bg, #000000) 80%, black);
 }
 
 @media (prefers-color-scheme: dark) {

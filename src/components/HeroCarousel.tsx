@@ -47,11 +47,11 @@ export default function HeroCarousel({ slides }: HeroCarouselProps) {
         <div className="flex touch-pan-y">
           {slides.map((slide, index) => (
             <div key={index} className="flex-[0_0_100%] min-w-0">
-              <div className="bg-brand text-white text-left py-8 px-5 md:py-12 md:px-8 rounded-2xl mx-4 my-2 md:mx-8 shadow-md h-[160px] md:h-[200px] flex flex-col justify-center">
+              <div className="bg-brand text-button-text text-left py-8 px-5 md:py-12 md:px-8 rounded-2xl mx-4 my-2 md:mx-8 shadow-md h-[160px] md:h-[200px] flex flex-col justify-center">
                 <h2 className="text-xl md:text-3xl font-bold mb-2 md:mb-3 leading-snug">
                   {slide.title}
                 </h2>
-                <p className="text-sm md:text-base text-white/90 font-bold">
+                <p className="text-sm md:text-base text-button-text/90 font-bold">
                   {slide.subtitle}
                 </p>
               </div>

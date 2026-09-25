@@ -25,7 +25,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-      style={{ '--theme-color': STORE_CONFIG.themeColor } as React.CSSProperties}
+      style={{ 
+        '--theme-nav-heading': STORE_CONFIG.colors.navHeading,
+        '--theme-button-bg': STORE_CONFIG.colors.buttonBackground,
+        '--theme-button-text': STORE_CONFIG.colors.buttonText,
+        '--theme-content-text': STORE_CONFIG.colors.textContent,
+      } as React.CSSProperties}
     >
       <body className="min-h-full flex flex-col">
         <ClientToaster />

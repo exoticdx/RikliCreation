@@ -179,7 +179,7 @@ export default function CatalogueClient({
       <header className="sticky top-0 z-40 bg-white border-b border-neutral-200 shadow-sm px-4 md:px-8 flex items-center justify-between h-[72px] md:h-[80px] print:hidden">
         <div className="flex items-center space-x-3 md:space-x-4">
           <img src="/Logo.png" alt="RC Imitation Jewellery Logo" className="h-10 md:h-12 w-auto object-contain" />
-          <h1 className="text-lg md:text-xl font-bold text-brand tracking-tight font-serif leading-tight">{STORE_CONFIG.storeName}</h1>
+          <h1 className="text-lg md:text-xl font-bold text-nav-heading tracking-tight font-serif leading-tight">{STORE_CONFIG.storeName}</h1>
         </div>
         <button 
           onClick={() => setIsExportModalOpen(true)}
@@ -210,7 +210,7 @@ export default function CatalogueClient({
       <div className="print:hidden sticky top-[72px] md:top-[80px] z-30 bg-white/95 backdrop-blur-sm border-b border-neutral-200 px-4 md:px-8 py-3 overflow-x-auto whitespace-nowrap hide-scrollbar flex space-x-2 md:space-x-4 shadow-sm">
         <button
           onClick={() => setSelectedCategory('all')}
-          className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${selectedCategory === 'all' ? 'bg-brand text-white' : 'bg-white border border-brand/20 text-brand/80 hover:bg-brand/5'}`}
+          className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${selectedCategory === 'all' ? 'bg-brand text-button-text' : 'bg-white border border-brand/20 text-brand/80 hover:bg-brand/5'}`}
         >
           All ({initialProducts.length})
         </button>
@@ -220,7 +220,7 @@ export default function CatalogueClient({
             <button
               key={cat.id}
               onClick={() => setSelectedCategory(cat.id)}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${selectedCategory === cat.id ? 'bg-brand text-white' : 'bg-white border border-brand/20 text-brand/80 hover:bg-brand/5'}`}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${selectedCategory === cat.id ? 'bg-brand text-button-text' : 'bg-white border border-brand/20 text-brand/80 hover:bg-brand/5'}`}
             >
               {cat.name} ({count})
             </button>
@@ -323,7 +323,7 @@ export default function CatalogueClient({
             <td className="pb-6 pt-4">
               <div className="flex items-center space-x-4">
                 <img src="/Logo.png" alt="Logo" className="h-12 w-auto object-contain" />
-                <h1 className="text-xl font-bold text-brand tracking-tight font-serif leading-tight">{STORE_CONFIG.storeName}</h1>
+                <h1 className="text-xl font-bold text-nav-heading tracking-tight font-serif leading-tight">{STORE_CONFIG.storeName}</h1>
               </div>
               <div className="h-px bg-neutral-200 w-full mt-4"></div>
             </td>
@@ -367,7 +367,7 @@ export default function CatalogueClient({
       {/* Quote List Bar - Hidden for this catalogue */}
       {/*
       {totalCartItems > 0 && (
-        <div className="print:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-brand text-white pl-4 pr-2 py-2 rounded-full shadow-2xl flex items-center space-x-3 md:space-x-4 animate-in fade-in zoom-in-95 animate-duration-200 border border-neutral-700 whitespace-nowrap">
+        <div className="print:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-brand text-button-text pl-4 pr-2 py-2 rounded-full shadow-2xl flex items-center space-x-3 md:space-x-4 animate-in fade-in zoom-in-95 animate-duration-200 border border-neutral-700 whitespace-nowrap">
           <div className="flex items-center space-x-2 text-sm font-medium">
             <span className="flex shrink-0 items-center justify-center bg-white border border-brand0 text-brand w-6 h-6 rounded-full text-xs font-bold">{totalCartItems}</span>
             <span className="pr-1 md:pr-2">Items in Quote</span>
@@ -465,7 +465,7 @@ export default function CatalogueClient({
                     setIsExportModalOpen(false);
                   }, 100);
                 }}
-                className="px-6 py-2.5 rounded-lg font-medium bg-brand text-white hover:bg-brand-dark transition-colors shadow-sm disabled:opacity-50"
+                className="px-6 py-2.5 rounded-lg font-medium bg-brand text-button-text hover:bg-brand-dark transition-colors shadow-sm disabled:opacity-50"
               >
                 Generate PDF
               </button>

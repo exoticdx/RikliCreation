@@ -137,7 +137,7 @@ export default function QuoteCart({ cart, onClose, onRemove, onUpdateQuantity }:
               <button 
                 type="submit"
                 form="bulk-quote-form"
-                className="flex-2 flex items-center justify-center space-x-2 bg-brand hover:bg-brand-dark text-white py-3.5 px-6 rounded-xl font-medium"
+                className="flex-2 flex items-center justify-center space-x-2 bg-brand hover:bg-brand-dark text-button-text py-3.5 px-6 rounded-xl font-medium"
               >
                 <Send className="w-4 h-4" />
                 <span>Send via WhatsApp</span>

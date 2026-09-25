@@ -455,7 +455,7 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
                 const initialAttrs: any = {}; STORE_CONFIG.customFields.forEach(f => { if (f.defaultValue !== undefined) initialAttrs[f.key] = f.defaultValue; }); setNewProduct({ sku: '', name: '', description: '', categoryId: '', attributes: initialAttrs });
                 setImageUrls([]);
                 setIsAddProductOpen(true);
-              }} className="bg-brand text-white px-4 py-2 rounded-lg flex items-center font-medium shadow-sm hover:bg-brand-dark transition-colors">
+              }} className="bg-brand text-button-text px-4 py-2 rounded-lg flex items-center font-medium shadow-sm hover:bg-brand-dark transition-colors">
                 <Plus className="w-5 h-5 mr-1" /> Add Product
               </button>
             </div>
@@ -591,7 +591,7 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
               <div className="flex gap-2 mb-6">
                 <input value={newCategoryName} onChange={e => setNewCategoryName(e.target.value)} 
                   className="flex-grow border p-2.5 rounded-lg text-black placeholder:text-neutral-500" placeholder="New Category Name" />
-                <button onClick={handleAddCategory} className="bg-brand text-white p-2.5 px-4 rounded-lg flex items-center font-medium">
+                <button onClick={handleAddCategory} className="bg-brand text-button-text p-2.5 px-4 rounded-lg flex items-center font-medium">
                   <Plus className="w-5 h-5 mr-1" /> Add
                 </button>
               </div>
@@ -627,7 +627,7 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
                             className="flex-grow border p-2 rounded-lg text-black placeholder:text-neutral-500" 
                             placeholder={`New ${field.label}`} 
                           />
-                          <button onClick={() => handleAddFieldOption(field.key)} className="bg-brand text-white p-2 px-3 rounded-lg flex items-center text-sm font-medium">
+                          <button onClick={() => handleAddFieldOption(field.key)} className="bg-brand text-button-text p-2 px-3 rounded-lg flex items-center text-sm font-medium">
                             <Plus className="w-4 h-4 mr-1" /> Add
                           </button>
                         </div>
@@ -755,7 +755,7 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
 
             <div className="p-6 border-t bg-neutral-50 rounded-b-2xl flex justify-end gap-3 shrink-0">
               <button onClick={() => setIsAddProductOpen(false)} className="px-5 py-2.5 rounded-lg font-medium text-neutral-600 hover:bg-neutral-200 transition-colors">Cancel</button>
-              <button onClick={handleAddProduct} className="bg-brand text-white px-8 py-2.5 rounded-lg font-medium shadow-sm hover:bg-brand-dark transition-colors">{editingProductId ? 'Update Product' : 'Save Product'}</button>
+              <button onClick={handleAddProduct} className="bg-brand text-button-text px-8 py-2.5 rounded-lg font-medium shadow-sm hover:bg-brand-dark transition-colors">{editingProductId ? 'Update Product' : 'Save Product'}</button>
             </div>
           </div>
         </div>
