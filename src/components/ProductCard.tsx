@@ -92,7 +92,7 @@ export default function ProductCard({ product, onInquire, onAdd, onImageClick, i
             target="_blank"
             rel="noopener noreferrer"
             className="hidden print:block text-xs font-medium underline text-center"
-            style={{ color: STORE_CONFIG.themeColor }}
+            style={{ color: STORE_CONFIG.colors.buttonBackground }}
           >
             Send Inquiry on WhatsApp
           </a>
