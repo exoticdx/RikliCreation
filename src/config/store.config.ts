@@ -78,6 +78,14 @@ export const STORE_CONFIG: StoreConfig = {
       isSortable: false
     },
     {
+      key: 'Size',
+      label: 'Size',
+      defaultValue:'M,L,XL,XXL,XXXL',
+      type: 'text',
+      isFilterable: false,
+      isSortable: false
+    },
+    {
       key: 'in_stock',
       label: 'In Stock',
       type: 'boolean',
