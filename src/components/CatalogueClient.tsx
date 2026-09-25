@@ -336,7 +336,7 @@ export default function CatalogueClient({
                 <div className="text-center py-20 text-black">No products to print.</div>
               ) : (
                 printGroups.sortedCategories.map(cat => (
-                  <div key={cat} className="mb-12 print:break-inside-avoid">
+                  <div key={cat} className="mb-12">
                     {/* Category Header with Line Separator */}
                     <div className="flex items-center gap-4 mb-6">
                       <h2 className="text-2xl font-bold text-brand whitespace-nowrap">{cat}</h2>

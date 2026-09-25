@@ -25,7 +25,7 @@ export default function ProductCard({ product, onInquire, onAdd, onImageClick, i
   const showAddedState = isInCart || isAdded;
 
   return (
-    <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-neutral-100 md:hover:shadow-md transition-shadow group flex flex-col h-full">
+    <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-neutral-100 md:hover:shadow-md transition-shadow group flex flex-col h-full print:break-inside-avoid">
       <div 
         className="relative aspect-square bg-neutral-100 w-full overflow-hidden cursor-pointer"
         onClick={onImageClick}
