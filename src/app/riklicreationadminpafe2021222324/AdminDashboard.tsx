@@ -708,7 +708,7 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
               <select value={newProduct.categoryId} onChange={e => setNewProduct({...newProduct, categoryId: e.target.value})} 
                 className="w-full border p-2.5 rounded-lg bg-white text-black font-medium">
                 <option value="" disabled>Select Category *</option>
-                {categories.filter(c => STORE_CONFIG.homepageCategories.some(hc => hc.name.toLowerCase() === c.name.toLowerCase())).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
               
               {STORE_CONFIG.customFields.length > 0 && (

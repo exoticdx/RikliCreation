@@ -71,6 +71,15 @@ export const STORE_CONFIG: StoreConfig = {
   ],
   customFields: [
     {
+      key: 'parent_category',
+      label: 'Main Type',
+      type: 'select',
+      options: ['Cord Set', 'Kurties'],
+      defaultValue: 'Cord Set',
+      isFilterable: false,
+      isSortable: false
+    },
+    {
       key: 'price',
       label: 'Price',
       type: 'number',

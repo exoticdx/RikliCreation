@@ -5,7 +5,8 @@ import { STORE_CONFIG } from '@/config/store.config';
 
 export async function GET() {
   try {
-    const categoryNames = STORE_CONFIG.homepageCategories.map(c => c.name);
+    const { data: categories } = await supabase.from('Category').select('name');
+    const categoryNames = categories?.map(c => c.name) || [];
 
     const workbook = new ExcelJS.Workbook();
     const sheet = workbook.addWorksheet('Products');

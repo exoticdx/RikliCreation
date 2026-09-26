@@ -47,6 +47,7 @@ export default function CatalogueClient({
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [activeParentCategory, setActiveParentCategory] = useState<string | null>(null);
   const [activeFilters, setActiveFilters] = useState<Record<string, any>>({});
   const [inquiryProduct, setInquiryProduct] = useState<Product | null>(null);
   const [zoomedProduct, setZoomedProduct] = useState<Product | null>(null);
@@ -78,8 +79,10 @@ export default function CatalogueClient({
 
   // Full filter + sort pipeline
   const displayProducts = useMemo(() => {
-    // 1. Category filter
     let filtered = products;
+    if (activeParentCategory) {
+      filtered = filtered.filter(p => p.attributes?.parent_category === activeParentCategory);
+    }
     if (selectedCategory !== 'all') {
       filtered = filtered.filter(p => p.categoryId === selectedCategory);
     }
@@ -103,13 +106,13 @@ export default function CatalogueClient({
     });
 
     return filtered;
-  }, [products, selectedCategory, activeFilters]);
+  }, [products, selectedCategory, activeParentCategory, activeFilters]);
 
   const hasActiveFilters = Object.values(activeFilters).some(v => v !== undefined) || selectedCategory !== 'all';
   
   const clearAllFilters = () => {
     setSelectedCategory('all');
-    setActiveFilters({});
+    setActiveFilters({}); setActiveParentCategory(null); setActiveParentCategory(null);
   };
 
   const handleAddToCartClick = (product: Product) => {
@@ -207,26 +210,38 @@ export default function CatalogueClient({
       </div>
 
       {/* Category Bar */}
-      <div className="print:hidden sticky top-[72px] md:top-[80px] z-30 bg-white/95 backdrop-blur-sm border-b border-neutral-200 px-4 md:px-8 py-3 overflow-x-auto whitespace-nowrap hide-scrollbar flex space-x-2 md:space-x-4 shadow-sm">
-        <button
-          onClick={() => setSelectedCategory('all')}
-          className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${selectedCategory === 'all' ? 'bg-brand text-button-text' : 'bg-white border border-brand/20 text-brand/80 hover:bg-brand/5'}`}
-        >
-          Home
-        </button>
-        {initialCategories.map(cat => {
-          const count = initialProducts.filter(p => p.categoryId === cat.id).length;
-          return (
-            <button
-              key={cat.id}
-              onClick={() => setSelectedCategory(cat.id)}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${selectedCategory === cat.id ? 'bg-brand text-button-text' : 'bg-white border border-brand/20 text-brand/80 hover:bg-brand/5'}`}
-            >
-              {cat.name} ({count})
-            </button>
-          )
-        })}
-      </div>
+      {activeParentCategory && (
+        <div className="print:hidden sticky top-[72px] md:top-[80px] z-30 bg-white/95 backdrop-blur-sm border-b border-neutral-200 px-4 md:px-8 py-3 overflow-x-auto whitespace-nowrap hide-scrollbar flex space-x-2 md:space-x-4 shadow-sm">
+          <button
+            onClick={() => {
+              setActiveParentCategory(null);
+              setSelectedCategory('all');
+            }}
+            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors bg-white border border-brand/20 text-brand/80 hover:bg-brand/5`}
+          >
+            ← Back Home
+          </button>
+          <button
+            onClick={() => setSelectedCategory('all')}
+            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${selectedCategory === 'all' ? 'bg-brand text-button-text' : 'bg-white border border-brand/20 text-brand/80 hover:bg-brand/5'}`}
+          >
+            All {activeParentCategory} ({initialProducts.filter(p => p.attributes?.parent_category === activeParentCategory).length})
+          </button>
+          {initialCategories.map(cat => {
+            const count = initialProducts.filter(p => p.categoryId === cat.id && p.attributes?.parent_category === activeParentCategory).length;
+            if (count === 0) return null; // Don't show empty price categories for this parent
+            return (
+              <button
+                key={cat.id}
+                onClick={() => setSelectedCategory(cat.id)}
+                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${selectedCategory === cat.id ? 'bg-brand text-button-text' : 'bg-white border border-brand/20 text-brand/80 hover:bg-brand/5'}`}
+              >
+                {cat.name} ({count})
+              </button>
+            )
+          })}
+        </div>
+      )}
 
       {/* Filter Bar - only show if there are filterable fields */}
       {filterableFields.length > 0 && (
@@ -288,14 +303,16 @@ export default function CatalogueClient({
 
       {/* Normal Product Grid (Hidden in Print) */}
       <div className="p-4 md:p-8 max-w-7xl mx-auto print:hidden">
-        {selectedCategory === 'all' && !hasActiveFilters && STORE_CONFIG.homepageCategories?.length > 0 ? (
+        {!activeParentCategory && STORE_CONFIG.homepageCategories?.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 mt-4 md:mt-8">
             {STORE_CONFIG.homepageCategories.map((card, idx) => {
-              const matchedCat = initialCategories.find(c => c.name.toLowerCase() === card.name.toLowerCase());
               return (
                 <div 
                   key={idx} 
-                  onClick={() => matchedCat ? setSelectedCategory(matchedCat.id) : toast.error(`Category "${card.name}" not found in database!`)}
+                  onClick={() => {
+                    setActiveParentCategory(card.name);
+                    setSelectedCategory('all');
+                  }}
                   className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-lg cursor-pointer group"
                 >
                   <img src={card.image} alt={card.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
