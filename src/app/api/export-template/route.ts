@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import ExcelJS from 'exceljs';
+import { supabase } from '@/lib/supabase';
 import { STORE_CONFIG } from '@/config/store.config';
 
 export async function GET() {
@@ -61,7 +62,7 @@ export async function GET() {
     // Add custom field lists
     STORE_CONFIG.customFields.forEach((field, index) => {
       if (field.type === 'select') {
-        const options = fieldOptions?.filter(o => o.fieldKey === field.key).map(o => o.value) || [];
+        const options = fieldOptions?.filter((o: any) => o.fieldKey === field.key).map((o: any) => o.value) || [];
         if (options.length > 0) {
           dropdownSheet.getColumn(dropdownColIndex).values = options;
           const colLetter = dropdownSheet.getColumn(dropdownColIndex).letter;
