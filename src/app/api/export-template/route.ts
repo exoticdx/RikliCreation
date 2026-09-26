@@ -1,12 +1,10 @@
 import { NextResponse } from 'next/server';
 import ExcelJS from 'exceljs';
-import { supabase } from '@/lib/supabase';
 import { STORE_CONFIG } from '@/config/store.config';
 
 export async function GET() {
   try {
-    const { data: categories } = await supabase.from('Category').select('name');
-    const categoryNames = categories?.map(c => c.name) || [];
+    const categoryNames = STORE_CONFIG.homepageCategories.map(c => c.name);
 
     const workbook = new ExcelJS.Workbook();
     const sheet = workbook.addWorksheet('Products');

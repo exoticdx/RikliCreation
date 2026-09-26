@@ -47,6 +47,7 @@ export interface StoreConfig {
   };
   whatsappNumber: string;
   maxImagesPerProduct: number;
+  homepageCategories: { name: string; image: string }[];
   customFields: CustomField[];
   homeLayout: LayoutComponent[];
 }
@@ -64,6 +65,10 @@ export const STORE_CONFIG: StoreConfig = {
   },
   whatsappNumber: "919510072745",
   maxImagesPerProduct: 5,
+  homepageCategories: [
+    { name: "Cord Set", image: "https://images.unsplash.com/photo-1618932260643-eee4a2f65ba8?q=80&w=800&auto=format&fit=crop" },
+    { name: "Kurties", image: "https://images.unsplash.com/photo-1583391733958-d25e07fac662?q=80&w=800&auto=format&fit=crop" }
+  ],
   customFields: [
     {
       key: 'price',

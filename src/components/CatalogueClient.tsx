@@ -212,7 +212,7 @@ export default function CatalogueClient({
           onClick={() => setSelectedCategory('all')}
           className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${selectedCategory === 'all' ? 'bg-brand text-button-text' : 'bg-white border border-brand/20 text-brand/80 hover:bg-brand/5'}`}
         >
-          All ({initialProducts.length})
+          Home
         </button>
         {initialCategories.map(cat => {
           const count = initialProducts.filter(p => p.categoryId === cat.id).length;
@@ -288,7 +288,26 @@ export default function CatalogueClient({
 
       {/* Normal Product Grid (Hidden in Print) */}
       <div className="p-4 md:p-8 max-w-7xl mx-auto print:hidden">
-        {displayProducts.length === 0 ? (
+        {selectedCategory === 'all' && !hasActiveFilters && STORE_CONFIG.homepageCategories?.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 mt-4 md:mt-8">
+            {STORE_CONFIG.homepageCategories.map((card, idx) => {
+              const matchedCat = initialCategories.find(c => c.name.toLowerCase() === card.name.toLowerCase());
+              return (
+                <div 
+                  key={idx} 
+                  onClick={() => matchedCat ? setSelectedCategory(matchedCat.id) : toast.error(`Category "${card.name}" not found in database!`)}
+                  className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-lg cursor-pointer group"
+                >
+                  <img src={card.image} alt={card.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors"></div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <h2 className="text-3xl md:text-5xl font-bold text-white tracking-wide font-serif drop-shadow-md">{card.name}</h2>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : displayProducts.length === 0 ? (
           <div className="text-center py-20 text-neutral-500">
             {hasActiveFilters ? 'No products match your filters.' : 'No products found in this category.'}
           </div>
