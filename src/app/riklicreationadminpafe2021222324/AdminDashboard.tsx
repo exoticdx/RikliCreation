@@ -203,8 +203,8 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
   };
 
   const handleAddProduct = async () => {
-    if (!newProduct.name || !newProduct.sku || !newProduct.categoryId) {
-      toast.error('Please fill required fields (SKU, Name, Category)');
+    if (!newProduct.name || !newProduct.sku || !newProduct.categoryId || !newProduct.attributes?.parent_category) {
+      toast.error('Please fill required fields (SKU, Name, Category 1, Category 2)');
       return;
     }
     const t = toast.loading(editingProductId ? 'Updating product...' : 'Adding product...');
@@ -349,7 +349,8 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
 
         const sku = rowData['SKU'];
         const name = rowData['Title'];
-        const categoryName = rowData['Category'];
+        const category1Name = rowData['Category 1 (Main)'];
+        const categoryName = rowData['Category 2 (Sub)'];
         const price = rowData['Price'] ? Number(rowData['Price']) : undefined;
         const description = rowData['Description'] || '';
         
@@ -362,13 +363,15 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
         
         const imageUrl = gallery.length > 0 ? gallery[0] : '';
 
-        if (!sku || !name || !categoryName) {
+        if (!sku || !name || !categoryName || !category1Name) {
           // If the row is completely empty, skip it. If partially filled, throw error.
-          if (!sku && !name && !categoryName) return;
-          throw new Error(`Row ${rowNumber} missing required fields (SKU, Title, Category).`);
+          if (!sku && !name && !categoryName && !category1Name) return;
+          throw new Error(`Row ${rowNumber} missing required fields (SKU, Title, Category 1, Category 2).`);
         }
         
-        const attributes: any = {};
+        const attributes: any = {
+          parent_category: category1Name
+        };
         if (gallery.length > 1) {
           attributes.gallery = gallery.slice(1);
         }
@@ -705,11 +708,19 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
                 </div>
               </div>
 
-              <select value={newProduct.categoryId} onChange={e => setNewProduct({...newProduct, categoryId: e.target.value})} 
-                className="w-full border p-2.5 rounded-lg bg-white text-black font-medium">
-                <option value="" disabled>Select Category *</option>
-                {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <select value={newProduct.attributes.parent_category || ''} onChange={e => setNewProduct({...newProduct, attributes: {...newProduct.attributes, parent_category: e.target.value}})} 
+                  className="w-full border p-2.5 rounded-lg bg-white text-black font-medium">
+                  <option value="" disabled>Select Category 1 (Main Type) *</option>
+                  {STORE_CONFIG.homepageCategories.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
+                </select>
+
+                <select value={newProduct.categoryId} onChange={e => setNewProduct({...newProduct, categoryId: e.target.value})} 
+                  className="w-full border p-2.5 rounded-lg bg-white text-black font-medium">
+                  <option value="" disabled>Select Category 2 (Sub Type) *</option>
+                  {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+              </div>
               
               {STORE_CONFIG.customFields.length > 0 && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4">
