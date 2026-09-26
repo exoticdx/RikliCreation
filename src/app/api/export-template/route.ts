@@ -15,7 +15,8 @@ export async function GET() {
     const columns = [
       { header: 'Title*', key: 'title', width: 25 },
       { header: 'SKU*', key: 'sku', width: 15 },
-      { header: 'Category*', key: 'category', width: 20 },
+      { header: 'Category 1 (Main)*', key: 'category1', width: 20 },
+      { header: 'Category 2 (Sub)*', key: 'category', width: 20 },
       { header: 'Price', key: 'price', width: 10 },
       { header: 'Description', key: 'description', width: 30 },
       { header: 'Image URL 1*', key: 'image_url_1', width: 40 },
@@ -69,7 +70,7 @@ export async function GET() {
           const colLetter = dropdownSheet.getColumn(dropdownColIndex).letter;
           const range = `DropdownLists!$${colLetter}$1:$${colLetter}$${options.length}`;
           
-          const mainSheetCol = sheet.getColumn(10 + index + 1).letter;
+          const mainSheetCol = sheet.getColumn(11 + index + 1).letter;
           
           for (let i = 2; i <= 1000; i++) {
             sheet.getCell(`${mainSheetCol}${i}`).dataValidation = {
@@ -84,7 +85,7 @@ export async function GET() {
           dropdownColIndex++;
         }
       } else if (field.type === 'boolean') {
-        const mainSheetCol = sheet.getColumn(10 + index + 1).letter;
+        const mainSheetCol = sheet.getColumn(11 + index + 1).letter;
         for (let i = 2; i <= 1000; i++) {
           sheet.getCell(`${mainSheetCol}${i}`).dataValidation = {
             type: 'list',
