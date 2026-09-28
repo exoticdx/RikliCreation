@@ -29,9 +29,9 @@ export default function ProductCard({ product, onInquire, onAdd, onImageClick, i
   const showAddedState = isInCart || isAdded;
 
   return (
-    <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-neutral-100 md:hover:shadow-md transition-shadow group flex flex-col h-full print:break-inside-avoid">
+    <div className="bg-black rounded-xl overflow-hidden shadow-sm border border-[#1f2025] md:hover:shadow-md transition-shadow group flex flex-col h-full print:break-inside-avoid">
       <div 
-        className="relative aspect-square bg-neutral-100 w-full overflow-hidden cursor-pointer"
+        className="relative aspect-square bg-neutral-900 w-full overflow-hidden cursor-pointer"
         onClick={onImageClick}
       >
         {displayImage ? (
@@ -48,11 +48,11 @@ export default function ProductCard({ product, onInquire, onAdd, onImageClick, i
       </div>
       <div className="p-3 md:p-4 flex flex-col flex-grow">
         <div className="text-[10px] md:text-xs text-neutral-400 mb-1 font-mono uppercase tracking-wider line-clamp-1">SKU: {product.sku}</div>
-        <h3 className="font-medium text-content-text mb-1 leading-snug text-sm md:text-base line-clamp-1 md:line-clamp-2">{product.name}</h3>
+        <h3 className="font-medium text-white mb-1 leading-snug text-sm md:text-base line-clamp-1 md:line-clamp-2">{product.name}</h3>
         
         {/* Price */}
         {product.attributes?.price && (
-          <div className="font-medium text-content-text text-sm md:text-base mb-2">
+          <div className="font-medium text-white text-sm md:text-base mb-2">
             ₹{Number(product.attributes.price).toLocaleString('en-IN')}
           </div>
         )}
@@ -62,7 +62,7 @@ export default function ProductCard({ product, onInquire, onAdd, onImageClick, i
           <div className="flex flex-wrap gap-1.5 mb-2">
             <button 
               onClick={(e) => { e.stopPropagation(); setActiveColorIdx(null); }}
-              className={`text-[10px] md:text-xs px-2 py-1 rounded-full border transition-colors ${activeColorIdx === null ? 'border-brand bg-brand/5 text-brand font-medium' : 'border-neutral-200 text-neutral-500 hover:border-neutral-300'}`}
+              className={`text-[10px] md:text-xs px-2 py-1 rounded-full border transition-colors ${activeColorIdx === null ? 'border-brand bg-brand/5 text-brand font-medium' : 'border-[#2a2b30] text-neutral-400 hover:border-[#3a3b40]'}`}
             >
               {product.attributes?.color || 'Default'}
             </button>
@@ -70,7 +70,7 @@ export default function ProductCard({ product, onInquire, onAdd, onImageClick, i
               <button 
                 key={idx}
                 onClick={(e) => { e.stopPropagation(); setActiveColorIdx(idx); }}
-                className={`text-[10px] md:text-xs px-2 py-1 rounded-full border transition-colors ${activeColorIdx === idx ? 'border-brand bg-brand/5 text-brand font-medium' : 'border-neutral-200 text-neutral-500 hover:border-neutral-300'}`}
+                className={`text-[10px] md:text-xs px-2 py-1 rounded-full border transition-colors ${activeColorIdx === idx ? 'border-brand bg-brand/5 text-brand font-medium' : 'border-[#2a2b30] text-neutral-400 hover:border-[#3a3b40]'}`}
               >
                 {c.name}
               </button>
@@ -100,7 +100,7 @@ export default function ProductCard({ product, onInquire, onAdd, onImageClick, i
               }
               
               return (
-                <span key={field.key} className="text-[10px] md:text-xs bg-neutral-100 text-neutral-600 px-1.5 py-0.5 rounded">
+                <span key={field.key} className="text-[10px] md:text-xs bg-neutral-900 text-neutral-400 px-1.5 py-0.5 rounded">
                   <span className="font-medium">{field.label}:</span> {displayVal}
                 </span>
               );

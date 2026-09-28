@@ -58,10 +58,10 @@ export interface StoreConfig {
 export const STORE_CONFIG: StoreConfig = {
   storeName: "Rikli Creation",
   colors: {
-    navHeading: "#000000",       // Color for the store name in navbar
-    buttonBackground: "#000000", // Color for buttons (like Inquire, Add Product)
+    navHeading: "#ffffff",       // Color for the store name in navbar
+    buttonBackground: "#0f1015", // Color for buttons (like Inquire, Add Product)
     buttonText: "#ffffff",       // Text color inside buttons
-    textContent: "#000000"       // Color for product names and general front-end text
+    textContent: "#ffffff"       // Color for product names and general front-end text
   },
   whatsappNumber: "919510072745",
   maxImagesPerProduct: 5,

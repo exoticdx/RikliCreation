@@ -302,7 +302,8 @@ export default function CatalogueClient({
       )}
 
       {/* Normal Product Grid (Hidden in Print) */}
-      <div className="p-4 md:p-8 max-w-7xl mx-auto print:hidden">
+      <div className="bg-[#0f1015] flex-grow min-h-screen">
+        <div className="py-4 md:py-8 px-4 md:px-8 max-w-7xl mx-auto print:hidden">
         {!activeParentCategory && STORE_CONFIG.homepageCategories?.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 mt-4 md:mt-8">
             {STORE_CONFIG.homepageCategories.map((card, idx) => {
@@ -350,6 +351,7 @@ export default function CatalogueClient({
             </div>
           </>
         )}
+        </div>
       </div>
 
       {/* Print-Only Product Grid with Repeating Header */}
