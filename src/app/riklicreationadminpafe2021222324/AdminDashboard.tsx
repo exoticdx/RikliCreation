@@ -466,12 +466,12 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 font-sans text-black flex flex-col">
+    <div className="min-h-screen bg-black font-sans text-white flex flex-col">
       {/* Top Navbar */}
-      <div className="bg-white border-b px-4 md:px-8 py-4 flex justify-between items-center sticky top-0 z-40">
+      <div className="bg-[#0f1015] border-b px-4 md:px-8 py-4 flex justify-between items-center sticky top-0 z-40">
         <h1 className="text-2xl font-bold text-brand">Admin Dashboard</h1>
         <div className="flex space-x-2 md:space-x-4">
-          <button onClick={handleLogout} className="flex items-center space-x-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 px-3 md:px-4 py-2 rounded-lg font-medium transition-colors text-sm md:text-base">
+          <button onClick={handleLogout} className="flex items-center space-x-2 bg-neutral-900 hover:bg-neutral-800 text-neutral-300 px-3 md:px-4 py-2 rounded-lg font-medium transition-colors text-sm md:text-base">
             <LogOut className="w-4 h-4" />
             <span className="hidden md:inline">Logout</span>
           </button>
@@ -479,22 +479,22 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
       </div>
 
       {/* Tabs */}
-      <div className="bg-white border-b px-4 md:px-8 flex space-x-8">
+      <div className="bg-[#0f1015] border-b px-4 md:px-8 flex space-x-8">
         <button 
           onClick={() => setActiveTab('products')} 
-          className={`py-4 font-medium border-b-2 transition-colors ${activeTab === 'products' ? 'border-brand text-brand' : 'border-transparent text-neutral-500 hover:text-black'}`}
+          className={`py-4 font-medium border-b-2 transition-colors ${activeTab === 'products' ? 'border-brand text-brand' : 'border-transparent text-neutral-400 hover:text-white'}`}
         >
           Products
         </button>
         <button 
           onClick={() => setActiveTab('bulk')} 
-          className={`py-4 font-medium border-b-2 transition-colors ${activeTab === 'bulk' ? 'border-brand text-brand' : 'border-transparent text-neutral-500 hover:text-black'}`}
+          className={`py-4 font-medium border-b-2 transition-colors ${activeTab === 'bulk' ? 'border-brand text-brand' : 'border-transparent text-neutral-400 hover:text-white'}`}
         >
           Bulk Upload
         </button>
         <button 
           onClick={() => setActiveTab('settings')} 
-          className={`py-4 font-medium border-b-2 transition-colors ${activeTab === 'settings' ? 'border-brand text-brand' : 'border-transparent text-neutral-500 hover:text-black'}`}
+          className={`py-4 font-medium border-b-2 transition-colors ${activeTab === 'settings' ? 'border-brand text-brand' : 'border-transparent text-neutral-400 hover:text-white'}`}
         >
           Store Settings
         </button>
@@ -504,7 +504,7 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
         {activeTab === 'products' && (
           <div className="max-w-7xl mx-auto">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold text-black">Inventory ({products.length})</h2>
+              <h2 className="text-xl font-semibold text-white">Inventory ({products.length})</h2>
               <button onClick={() => {
                 setEditingProductId(null);
                 const initialAttrs: any = {}; STORE_CONFIG.customFields.forEach(f => { if (f.defaultValue !== undefined) initialAttrs[f.key] = f.defaultValue; }); setNewProduct({ sku: '', name: '', description: '', categoryId: '', attributes: initialAttrs });
@@ -515,30 +515,30 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
               </button>
             </div>
             
-            <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-neutral-200">
+            <div className="bg-[#0f1015] rounded-2xl shadow-sm overflow-hidden border border-[#1f2025]">
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-black">
-                  <thead className="bg-neutral-50">
+                <table className="w-full text-left text-white">
+                  <thead className="bg-black">
                     <tr className="border-b">
-                      <th className="p-4 font-medium text-neutral-600 text-sm">Image</th>
-                      <th className="p-4 font-medium text-neutral-600 text-sm">SKU</th>
-                      <th className="p-4 font-medium text-neutral-600 text-sm">Name</th>
-                      <th className="p-4 font-medium text-neutral-600 text-sm">Category</th>
-                      <th className="p-4 font-medium text-neutral-600 text-sm text-right">Actions</th>
+                      <th className="p-4 font-medium text-neutral-400 text-sm">Image</th>
+                      <th className="p-4 font-medium text-neutral-400 text-sm">SKU</th>
+                      <th className="p-4 font-medium text-neutral-400 text-sm">Name</th>
+                      <th className="p-4 font-medium text-neutral-400 text-sm">Category</th>
+                      <th className="p-4 font-medium text-neutral-400 text-sm text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {products.length === 0 ? (
-                      <tr><td colSpan={5} className="p-8 text-center text-neutral-500">No products found. Add one or use Bulk Upload!</td></tr>
+                      <tr><td colSpan={5} className="p-8 text-center text-neutral-400">No products found. Add one or use Bulk Upload!</td></tr>
                     ) : products.map(p => (
-                      <tr key={p.id} onClick={() => handleEditClick(p)} className="border-b hover:bg-neutral-50 transition-colors cursor-pointer">
+                      <tr key={p.id} onClick={() => handleEditClick(p)} className="border-b hover:bg-black transition-colors cursor-pointer">
                         <td className="p-4">
-                          {p.imageUrl ? <img src={p.imageUrl} alt={p.name} className="w-12 h-12 object-cover rounded-lg border" /> : <div className="w-12 h-12 bg-neutral-100 rounded-lg border flex items-center justify-center text-xs text-neutral-400">No Img</div>}
+                          {p.imageUrl ? <img src={p.imageUrl} alt={p.name} className="w-12 h-12 object-cover rounded-lg border" /> : <div className="w-12 h-12 bg-neutral-900 rounded-lg border flex items-center justify-center text-xs text-neutral-400">No Img</div>}
                         </td>
                         <td className="p-4 font-mono text-sm">{p.sku}</td>
                         <td className="p-4 font-medium">{p.name}</td>
-                        <td className="p-4 text-sm text-neutral-600">
-                          <span className="bg-neutral-100 px-2 py-1 rounded-md text-xs">{p.category?.name}</span>
+                        <td className="p-4 text-sm text-neutral-400">
+                          <span className="bg-neutral-900 px-2 py-1 rounded-md text-xs">{p.category?.name}</span>
                         </td>
                         <td className="p-4 text-right">
                           <button onClick={(e) => { e.stopPropagation(); handleDeleteProduct(p.id, p.sku); }} className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition-colors">
@@ -556,10 +556,10 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
 
         {activeTab === 'bulk' && (
           <div className="max-w-3xl mx-auto mt-4 space-y-8">
-            <div className="bg-white p-8 rounded-2xl shadow-sm border border-neutral-200">
+            <div className="bg-[#0f1015] p-8 rounded-2xl shadow-sm border border-[#1f2025]">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-semibold text-black flex items-center"><Upload className="w-6 h-6 mr-3 text-brand"/> Excel Bulk Upload</h2>
-                <button onClick={downloadTemplate} className="text-sm flex items-center bg-neutral-100 px-3 py-1.5 rounded-lg text-neutral-700 hover:bg-neutral-200 font-medium transition-colors">
+                <h2 className="text-2xl font-semibold text-white flex items-center"><Upload className="w-6 h-6 mr-3 text-brand"/> Excel Bulk Upload</h2>
+                <button onClick={downloadTemplate} className="text-sm flex items-center bg-neutral-900 px-3 py-1.5 rounded-lg text-neutral-300 hover:bg-neutral-800 font-medium transition-colors">
                   <Download className="w-4 h-4 mr-2" /> Download Excel Template
                 </button>
               </div>
@@ -570,7 +570,7 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
                 </p>
               </div>
 
-              <div className="border-2 border-dashed border-neutral-300 rounded-xl p-8 text-center bg-neutral-50 hover:bg-neutral-100 transition-colors relative">
+              <div className="border-2 border-dashed border-[#1f2025] rounded-xl p-8 text-center bg-black hover:bg-neutral-900 transition-colors relative">
                 <input 
                   type="file" 
                   accept=".xlsx"
@@ -579,20 +579,20 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 />
                 <Upload className="w-10 h-10 text-neutral-400 mx-auto mb-3" />
-                <h3 className="text-lg font-medium text-black mb-1">Drop your Excel file here</h3>
-                <p className="text-sm text-neutral-500">or click to browse (.xlsx)</p>
+                <h3 className="text-lg font-medium text-white mb-1">Drop your Excel file here</h3>
+                <p className="text-sm text-neutral-400">or click to browse (.xlsx)</p>
                 {isUploading && <div className="mt-4 text-sm font-medium text-amber-600 bg-amber-100 inline-block px-3 py-1 rounded-full animate-pulse">Parsing and Uploading...</div>}
               </div>
             </div>
 
             {/* Image URL Generator */}
-            <div className="bg-white p-8 rounded-2xl shadow-sm border border-neutral-200">
+            <div className="bg-[#0f1015] p-8 rounded-2xl shadow-sm border border-[#1f2025]">
               <div className="mb-6">
-                <h2 className="text-2xl font-semibold text-black flex items-center"><LinkIcon className="w-6 h-6 mr-3 text-brand"/> Image URL Generator</h2>
-                <p className="text-sm text-neutral-500 mt-2">Upload images here to instantly generate public URLs. You can copy and paste these URLs directly into your Bulk Upload Excel sheet.</p>
+                <h2 className="text-2xl font-semibold text-white flex items-center"><LinkIcon className="w-6 h-6 mr-3 text-brand"/> Image URL Generator</h2>
+                <p className="text-sm text-neutral-400 mt-2">Upload images here to instantly generate public URLs. You can copy and paste these URLs directly into your Bulk Upload Excel sheet.</p>
               </div>
 
-              <div className="border-2 border-dashed border-neutral-300 rounded-xl p-8 text-center bg-neutral-50 hover:bg-neutral-100 transition-colors relative mb-6">
+              <div className="border-2 border-dashed border-[#1f2025] rounded-xl p-8 text-center bg-black hover:bg-neutral-900 transition-colors relative mb-6">
                 <input 
                   type="file" 
                   multiple
@@ -602,30 +602,30 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
                   disabled={isGeneratingUrls}
                 />
                 <Upload className="w-10 h-10 text-neutral-400 mx-auto mb-3" />
-                <h3 className="text-lg font-medium text-black mb-1">Upload Images to Generate URLs</h3>
-                <p className="text-sm text-neutral-500">Select multiple images at once</p>
+                <h3 className="text-lg font-medium text-white mb-1">Upload Images to Generate URLs</h3>
+                <p className="text-sm text-neutral-400">Select multiple images at once</p>
                 {isGeneratingUrls && <div className="mt-4 text-sm font-medium text-brand bg-brand/10 inline-block px-3 py-1 rounded-full animate-pulse">Uploading and Generating URLs...</div>}
               </div>
 
               {generatedUrls.length > 0 && (
                 <div className="space-y-3">
                   <div className="flex justify-between items-center mb-2">
-                    <h3 className="font-semibold text-black">Generated URLs</h3>
+                    <h3 className="font-semibold text-white">Generated URLs</h3>
                     <button onClick={() => setGeneratedUrls([])} className="text-sm text-red-500 hover:text-red-700">Clear All</button>
                   </div>
                   {generatedUrls.map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-3 bg-neutral-50 p-3 rounded-lg border border-neutral-200">
-                      <img src={item.url} alt="Preview" className="w-10 h-10 object-cover rounded shadow-sm border border-neutral-200" />
+                    <div key={idx} className="flex items-center gap-3 bg-black p-3 rounded-lg border border-[#1f2025]">
+                      <img src={item.url} alt="Preview" className="w-10 h-10 object-cover rounded shadow-sm border border-[#1f2025]" />
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-medium text-black truncate mb-1">{item.name}</p>
-                        <input type="text" readOnly value={item.url} className="w-full bg-white border border-neutral-300 text-xs px-2 py-1 rounded text-neutral-600 focus:outline-none" />
+                        <p className="text-xs font-medium text-white truncate mb-1">{item.name}</p>
+                        <input type="text" readOnly value={item.url} className="w-full bg-[#0f1015] border border-[#1f2025] text-xs px-2 py-1 rounded text-neutral-400 focus:outline-none" />
                       </div>
                       <button 
                         onClick={() => {
                           navigator.clipboard.writeText(item.url);
                           toast.success('URL Copied to clipboard!');
                         }} 
-                        className="p-2 bg-white border border-neutral-300 rounded-lg text-neutral-600 hover:bg-neutral-100 hover:text-black transition-colors shrink-0"
+                        className="p-2 bg-[#0f1015] border border-[#1f2025] rounded-lg text-neutral-400 hover:bg-neutral-900 hover:text-white transition-colors shrink-0"
                         title="Copy URL"
                       >
                         <Copy className="w-4 h-4" />
@@ -641,18 +641,18 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
         {activeTab === 'settings' && (
           <div className="max-w-5xl mx-auto mt-4 grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Categories Section */}
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-neutral-200 self-start">
+            <div className="bg-[#0f1015] p-6 rounded-2xl shadow-sm border border-[#1f2025] self-start">
               <h2 className="text-xl font-semibold mb-4 border-b pb-2">Manage Categories</h2>
               <div className="flex gap-2 mb-6">
                 <input value={newCategoryName} onChange={e => setNewCategoryName(e.target.value)} 
-                  className="flex-grow border p-2.5 rounded-lg text-black placeholder:text-neutral-500" placeholder="New Category Name" />
+                  className="flex-grow border p-2.5 rounded-lg text-white placeholder:text-neutral-400" placeholder="New Category Name" />
                 <button onClick={handleAddCategory} className="bg-brand text-button-text p-2.5 px-4 rounded-lg flex items-center font-medium">
                   <Plus className="w-5 h-5 mr-1" /> Add
                 </button>
               </div>
               <ul className="space-y-2 max-h-[500px] overflow-y-auto pr-2">
-                {categories.length === 0 ? <li className="text-neutral-500 text-center py-4 text-sm">No categories yet.</li> : categories.map(c => (
-                  <li key={c.id} className="flex justify-between items-center p-3 bg-neutral-50 border border-neutral-100 rounded-lg text-black">
+                {categories.length === 0 ? <li className="text-neutral-400 text-center py-4 text-sm">No categories yet.</li> : categories.map(c => (
+                  <li key={c.id} className="flex justify-between items-center p-3 bg-black border border-[#1f2025] rounded-lg text-white">
                     <span className="font-medium">{c.name}</span>
                     <button onClick={() => handleDeleteCategory(c.id, c.name)} className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition-colors">
                       <Trash2 className="w-4 h-4" />
@@ -664,14 +664,14 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
 
             {/* Custom Field Options Section */}
             {STORE_CONFIG.customFields.filter(f => f.type === 'select').length > 0 && (
-              <div className="bg-white p-6 rounded-2xl shadow-sm border border-neutral-200 self-start">
+              <div className="bg-[#0f1015] p-6 rounded-2xl shadow-sm border border-[#1f2025] self-start">
                 <h2 className="text-xl font-semibold mb-4 border-b pb-2">Custom Select Options</h2>
                 <div className="space-y-8">
                   {STORE_CONFIG.customFields.filter(f => f.type === 'select').map(field => {
                     const currentOptions = fieldOptions?.filter(o => o.fieldKey === field.key) || [];
                     return (
                       <div key={field.key}>
-                        <h3 className="font-medium text-black mb-3 flex items-center text-lg">{field.label} Options</h3>
+                        <h3 className="font-medium text-white mb-3 flex items-center text-lg">{field.label} Options</h3>
                         <div className="flex gap-2 mb-4">
                           <input 
                             value={newFieldOptions[field.key] || ''} 
@@ -679,7 +679,7 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
                             onKeyDown={e => {
                               if (e.key === 'Enter') handleAddFieldOption(field.key);
                             }}
-                            className="flex-grow border p-2 rounded-lg text-black placeholder:text-neutral-500" 
+                            className="flex-grow border p-2 rounded-lg text-white placeholder:text-neutral-400" 
                             placeholder={`New ${field.label}`} 
                           />
                           <button onClick={() => handleAddFieldOption(field.key)} className="bg-brand text-button-text p-2 px-3 rounded-lg flex items-center text-sm font-medium">
@@ -688,7 +688,7 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
                         </div>
                         <ul className="space-y-1.5 max-h-[300px] overflow-y-auto">
                           {currentOptions.map(opt => (
-                            <li key={opt.id} className="flex justify-between items-center p-2.5 bg-neutral-50 border border-neutral-100 rounded-lg text-black text-sm">
+                            <li key={opt.id} className="flex justify-between items-center p-2.5 bg-black border border-[#1f2025] rounded-lg text-white text-sm">
                               <span className="font-medium">{opt.value}</span>
                               <button onClick={() => handleDeleteFieldOption(opt.id, field.key, opt.value)} className="text-red-500 hover:text-red-700 p-1.5 hover:bg-red-50 rounded-lg transition-colors">
                                 <Trash2 className="w-4 h-4" />
@@ -712,10 +712,10 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
       {/* Add/Edit Single Product Modal */}
       {isAddProductOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl w-full max-w-2xl shadow-xl max-h-[90vh] flex flex-col">
+          <div className="bg-[#0f1015] rounded-2xl w-full max-w-2xl shadow-xl max-h-[90vh] flex flex-col">
             <div className="flex justify-between items-center p-6 border-b shrink-0">
-              <h2 className="text-xl font-semibold text-black">{editingProductId ? 'Edit Product' : 'Add New Product'}</h2>
-              <button onClick={() => setIsAddProductOpen(false)} className="text-neutral-500 hover:bg-neutral-100 p-2 rounded-full transition-colors">
+              <h2 className="text-xl font-semibold text-white">{editingProductId ? 'Edit Product' : 'Add New Product'}</h2>
+              <button onClick={() => setIsAddProductOpen(false)} className="text-neutral-400 hover:bg-neutral-900 p-2 rounded-full transition-colors">
                 <X className="w-6 h-6" />
               </button>
             </div>
@@ -723,22 +723,22 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
             <div className="p-6 space-y-5 overflow-y-auto flex-grow">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <input value={newProduct.sku} onChange={e => setNewProduct({...newProduct, sku: e.target.value})} 
-                  className="w-full border p-2.5 rounded-lg text-black placeholder:text-neutral-500" placeholder="SKU *" disabled={!!editingProductId} />
+                  className="w-full border p-2.5 rounded-lg text-white placeholder:text-neutral-400" placeholder="SKU *" disabled={!!editingProductId} />
                 <input value={newProduct.name} onChange={e => setNewProduct({...newProduct, name: e.target.value})} 
-                  className="w-full border p-2.5 rounded-lg text-black placeholder:text-neutral-500" placeholder="Product Name *" />
+                  className="w-full border p-2.5 rounded-lg text-white placeholder:text-neutral-400" placeholder="Product Name *" />
               </div>
 
               <input value={newProduct.attributes?.color || ''} onChange={e => setNewProduct({...newProduct, attributes: {...newProduct.attributes, color: e.target.value}})} 
-                className="w-full border p-2.5 rounded-lg text-black placeholder:text-neutral-500" placeholder="Primary Color (e.g. Red) *" />
+                className="w-full border p-2.5 rounded-lg text-white placeholder:text-neutral-400" placeholder="Primary Color (e.g. Red) *" />
               
               <textarea value={newProduct.description} onChange={e => setNewProduct({...newProduct, description: e.target.value})} 
-                className="w-full border p-2.5 rounded-lg text-black placeholder:text-neutral-500 min-h-[100px]" placeholder="Description" />
+                className="w-full border p-2.5 rounded-lg text-white placeholder:text-neutral-400 min-h-[100px]" placeholder="Description" />
               
-              <div className="border border-neutral-200 rounded-lg p-4 bg-neutral-50">
-                <label className="block text-sm font-medium text-black mb-3">Product Images</label>
+              <div className="border border-[#1f2025] rounded-lg p-4 bg-black">
+                <label className="block text-sm font-medium text-white mb-3">Product Images</label>
                 <div className="flex flex-wrap gap-3 mb-3">
                   {imageUrls.map((url, i) => (
-                    <div key={i} className="relative group w-20 h-20 border bg-white rounded-lg overflow-hidden shadow-sm">
+                    <div key={i} className="relative group w-20 h-20 border bg-[#0f1015] rounded-lg overflow-hidden shadow-sm">
                       <img src={url} alt="upload" className="w-full h-full object-cover" />
                       <button 
                         onClick={() => setImageUrls(prev => prev.filter((_, idx) => idx !== i))}
@@ -749,13 +749,13 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
                       {i === 0 && <span className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[10px] text-center py-0.5">Primary</span>}
                     </div>
                   ))}
-                  <label className="w-20 h-20 border-2 border-dashed border-neutral-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-neutral-100 hover:border-brand transition-colors bg-white">
+                  <label className="w-20 h-20 border-2 border-dashed border-[#1f2025] rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-neutral-900 hover:border-brand transition-colors bg-[#0f1015]">
                     {isUploadingImage ? (
                       <div className="w-5 h-5 border-2 border-brand border-t-transparent rounded-full animate-spin"></div>
                     ) : (
                       <>
                         <Plus className="w-6 h-6 text-neutral-400 mb-1" />
-                        <span className="text-[10px] text-neutral-500 font-medium">Add Image</span>
+                        <span className="text-[10px] text-neutral-400 font-medium">Add Image</span>
                       </>
                     )}
                     <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" multiple disabled={isUploadingImage} />
@@ -765,13 +765,13 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <select value={newProduct.attributes.parent_category || ''} onChange={e => setNewProduct({...newProduct, attributes: {...newProduct.attributes, parent_category: e.target.value}})} 
-                  className="w-full border p-2.5 rounded-lg bg-white text-black font-medium">
+                  className="w-full border p-2.5 rounded-lg bg-[#0f1015] text-white font-medium">
                   <option value="" disabled>Select Category 1 (Main Type) *</option>
                   {STORE_CONFIG.homepageCategories.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
                 </select>
 
                 <select value={newProduct.categoryId} onChange={e => setNewProduct({...newProduct, categoryId: e.target.value})} 
-                  className="w-full border p-2.5 rounded-lg bg-white text-black font-medium">
+                  className="w-full border p-2.5 rounded-lg bg-[#0f1015] text-white font-medium">
                   <option value="" disabled>Select Category 2 (Sub Type) *</option>
                   {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
@@ -781,12 +781,12 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4">
                   {STORE_CONFIG.customFields.map(field => (
                     <div key={field.key}>
-                      <label className="block text-xs font-medium text-neutral-500 mb-1 ml-1">{field.label}</label>
+                      <label className="block text-xs font-medium text-neutral-400 mb-1 ml-1">{field.label}</label>
                       {field.type === 'select' ? (
                         <select 
                           value={newProduct.attributes[field.key] || ''} 
                           onChange={e => setNewProduct({...newProduct, attributes: {...newProduct.attributes, [field.key]: e.target.value}})}
-                          className="w-full border p-2.5 rounded-lg bg-white text-black"
+                          className="w-full border p-2.5 rounded-lg bg-[#0f1015] text-white"
                         >
                           <option value="" disabled>Select {field.label}</option>
                           {(() => {
@@ -795,7 +795,7 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
                           })()}
                         </select>
                       ) : field.type === 'boolean' ? (
-                        <label className="flex items-center space-x-2 text-black cursor-pointer p-2 border rounded-lg bg-white">
+                        <label className="flex items-center space-x-2 text-white cursor-pointer p-2 border rounded-lg bg-[#0f1015]">
                           <input 
                             type="checkbox" 
                             checked={!!newProduct.attributes[field.key]} 
@@ -809,7 +809,7 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
                           type={field.type === 'number' ? 'number' : 'text'}
                           value={newProduct.attributes[field.key] || ''} 
                           onChange={e => setNewProduct({...newProduct, attributes: {...newProduct.attributes, [field.key]: field.type === 'number' ? Number(e.target.value) : e.target.value}})}
-                          className="w-full border p-2.5 rounded-lg text-black placeholder:text-neutral-400" 
+                          className="w-full border p-2.5 rounded-lg text-white placeholder:text-neutral-400" 
                           placeholder={`Enter ${field.label}`} 
                         />
                       )}
@@ -827,16 +827,16 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
                 </div>
                 <div className="space-y-3">
                   {(newProduct.attributes.colors || []).map((color: any, idx: number) => (
-                    <div key={idx} className="flex items-center gap-3 bg-neutral-50 p-3 rounded-lg border border-neutral-100">
+                    <div key={idx} className="flex items-center gap-3 bg-black p-3 rounded-lg border border-[#1f2025]">
                       <input 
                         type="text" 
                         value={color.name} 
                         onChange={e => updateColorVariant(idx, e.target.value)} 
                         placeholder="Color Name (e.g. Red)" 
-                        className="flex-1 border p-2 rounded-lg bg-white text-sm" 
+                        className="flex-1 border p-2 rounded-lg bg-[#0f1015] text-sm" 
                       />
                       <label className="cursor-pointer shrink-0">
-                        <div className="w-10 h-10 rounded-lg border border-neutral-200 bg-white flex items-center justify-center overflow-hidden hover:bg-neutral-100 transition-colors">
+                        <div className="w-10 h-10 rounded-lg border border-[#1f2025] bg-[#0f1015] flex items-center justify-center overflow-hidden hover:bg-neutral-900 transition-colors">
                           {color.imageUrl ? (
                             <img src={color.imageUrl} alt="color" className="w-full h-full object-cover" />
                           ) : (
@@ -858,8 +858,8 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
 
             </div>
 
-            <div className="p-6 border-t bg-neutral-50 rounded-b-2xl flex justify-end gap-3 shrink-0">
-              <button onClick={() => setIsAddProductOpen(false)} className="px-5 py-2.5 rounded-lg font-medium text-neutral-600 hover:bg-neutral-200 transition-colors">Cancel</button>
+            <div className="p-6 border-t bg-black rounded-b-2xl flex justify-end gap-3 shrink-0">
+              <button onClick={() => setIsAddProductOpen(false)} className="px-5 py-2.5 rounded-lg font-medium text-neutral-400 hover:bg-neutral-800 transition-colors">Cancel</button>
               <button onClick={handleAddProduct} className="bg-brand text-button-text px-8 py-2.5 rounded-lg font-medium shadow-sm hover:bg-brand-dark transition-colors">{editingProductId ? 'Update Product' : 'Save Product'}</button>
             </div>
           </div>
@@ -869,8 +869,8 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
       {/* Confirmation Modal */}
       {confirmDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl transform transition-all">
-            <h3 className="text-2xl font-bold text-black mb-4 flex items-center">
+          <div className="bg-[#0f1015] rounded-2xl p-8 max-w-md w-full shadow-2xl transform transition-all">
+            <h3 className="text-2xl font-bold text-white mb-4 flex items-center">
               <AlertCircle className="w-7 h-7 text-red-500 mr-2" /> Confirm Deletion
             </h3>
             
@@ -885,8 +885,8 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
                   </p>
                 </div>
               ) : (
-                <p className="text-neutral-600 mb-6 text-lg">
-                  Are you sure you want to delete the category <strong className="text-black">"{confirmDelete.name}"</strong>?
+                <p className="text-neutral-400 mb-6 text-lg">
+                  Are you sure you want to delete the category <strong className="text-white">"{confirmDelete.name}"</strong>?
                 </p>
               )
             ) : confirmDelete.type === 'fieldOption' ? (
@@ -900,20 +900,20 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
                   </p>
                 </div>
               ) : (
-                <p className="text-neutral-600 mb-6 text-lg">
-                  Are you sure you want to delete this option: <strong className="text-black">"{confirmDelete.name}"</strong>?
+                <p className="text-neutral-400 mb-6 text-lg">
+                  Are you sure you want to delete this option: <strong className="text-white">"{confirmDelete.name}"</strong>?
                 </p>
               )
             ) : (
-              <p className="text-neutral-600 mb-6 text-lg">
-                Are you sure you want to delete the product with SKU: <strong className="text-black">{confirmDelete.name}</strong>?
+              <p className="text-neutral-400 mb-6 text-lg">
+                Are you sure you want to delete the product with SKU: <strong className="text-white">{confirmDelete.name}</strong>?
               </p>
             )}
 
             <div className="flex gap-3 justify-end mt-8">
               <button 
                 onClick={() => setConfirmDelete(null)}
-                className="px-5 py-2.5 rounded-xl font-medium text-neutral-600 bg-neutral-100 hover:bg-neutral-200 transition-colors"
+                className="px-5 py-2.5 rounded-xl font-medium text-neutral-400 bg-neutral-900 hover:bg-neutral-800 transition-colors"
               >
                 Cancel
               </button>

@@ -36,13 +36,13 @@ export default function QuoteCart({ cart, onClose, onRemove, onUpdateQuantity }:
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-black/20 backdrop-blur-sm animate-in fade-in animate-duration-300">
-      <div className="w-full max-w-md bg-white h-full shadow-2xl flex flex-col animate-in slide-in-from-right animate-duration-300">
-        <div className="flex justify-between items-center p-4 border-b border-neutral-100">
+      <div className="w-full max-w-md bg-[#0f1015] h-full shadow-2xl flex flex-col animate-in slide-in-from-right animate-duration-300">
+        <div className="flex justify-between items-center p-4 border-b border-[#1f2025]">
           <h2 className="text-lg font-semibold text-brand">
             {step === 1 ? 'Quote List' : 'Your Details'}
           </h2>
-          <button onClick={onClose} className="p-2 hover:bg-neutral-100 rounded-full transition-colors">
-            <X className="w-5 h-5 text-neutral-500" />
+          <button onClick={onClose} className="p-2 hover:bg-neutral-900 rounded-full transition-colors">
+            <X className="w-5 h-5 text-neutral-400" />
           </button>
         </div>
 
@@ -51,7 +51,7 @@ export default function QuoteCart({ cart, onClose, onRemove, onUpdateQuantity }:
             <>
               {cart.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-neutral-400 space-y-4">
-                  <div className="p-4 bg-neutral-50 rounded-full">
+                  <div className="p-4 bg-black rounded-full">
                     <Trash2 className="w-8 h-8 opacity-50" />
                   </div>
                   <p>Your quote list is empty.</p>
@@ -59,8 +59,8 @@ export default function QuoteCart({ cart, onClose, onRemove, onUpdateQuantity }:
               ) : (
                 <div className="space-y-4">
                   {cart.map((item, idx) => (
-                    <div key={`${item.product.id}-${idx}`} className="flex gap-4 p-3 bg-neutral-50 rounded-xl border border-neutral-100">
-                      <div className="w-20 h-20 bg-white rounded-lg overflow-hidden shrink-0">
+                    <div key={`${item.product.id}-${idx}`} className="flex gap-4 p-3 bg-black rounded-xl border border-[#1f2025]">
+                      <div className="w-20 h-20 bg-[#0f1015] rounded-lg overflow-hidden shrink-0">
                         {item.product.imageUrl && (
                           <img src={item.product.imageUrl} alt={item.product.name} className="w-full h-full object-cover" />
                         )}
@@ -71,19 +71,19 @@ export default function QuoteCart({ cart, onClose, onRemove, onUpdateQuantity }:
                           <div className="font-medium text-brand text-sm leading-snug line-clamp-2">{item.product.name}</div>
                         </div>
                         <div className="flex items-center justify-between mt-2">
-                          <div className="flex items-center bg-white border border-neutral-200 rounded-lg">
-                            <button onClick={() => onUpdateQuantity(item.product.id, item.quantity - 1)} className="p-1 hover:bg-neutral-50 text-neutral-500">
+                          <div className="flex items-center bg-[#0f1015] border border-[#1f2025] rounded-lg">
+                            <button onClick={() => onUpdateQuantity(item.product.id, item.quantity - 1)} className="p-1 hover:bg-black text-neutral-400">
                               <Minus className="w-4 h-4" />
                             </button>
                             <span className="w-8 text-center text-sm font-medium">{item.quantity}</span>
-                            <button onClick={() => onUpdateQuantity(item.product.id, item.quantity + 1)} className="p-1 hover:bg-neutral-50 text-neutral-500">
+                            <button onClick={() => onUpdateQuantity(item.product.id, item.quantity + 1)} className="p-1 hover:bg-black text-neutral-400">
                               <Plus className="w-4 h-4" />
                             </button>
                           </div>
                           <button onClick={() => {
                             onRemove(item.product.id);
                             toast.success('Removed from Quote List');
-                          }} className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                          }} className="p-1.5 text-red-500 hover:bg-red-950/30 rounded-lg transition-colors">
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
@@ -98,25 +98,25 @@ export default function QuoteCart({ cart, onClose, onRemove, onUpdateQuantity }:
           {step === 2 && (
             <form id="bulk-quote-form" onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-1">Name *</label>
-                <input required type="text" className="w-full border border-neutral-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-amber-500 outline-none" 
+                <label className="block text-sm font-medium text-neutral-300 mb-1">Name *</label>
+                <input required type="text" className="w-full bg-black text-white border border-[#1f2025] rounded-lg px-3 py-2 focus:ring-2 focus:ring-amber-500 outline-none" 
                   value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-1">Company Name</label>
-                <input type="text" className="w-full border border-neutral-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-amber-500 outline-none" 
+                <label className="block text-sm font-medium text-neutral-300 mb-1">Company Name</label>
+                <input type="text" className="w-full bg-black text-white border border-[#1f2025] rounded-lg px-3 py-2 focus:ring-2 focus:ring-amber-500 outline-none" 
                   value={formData.company} onChange={e => setFormData({...formData, company: e.target.value})} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-1">Mobile Number *</label>
-                <input required type="tel" className="w-full border border-neutral-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-amber-500 outline-none" 
+                <label className="block text-sm font-medium text-neutral-300 mb-1">Mobile Number *</label>
+                <input required type="tel" className="w-full bg-black text-white border border-[#1f2025] rounded-lg px-3 py-2 focus:ring-2 focus:ring-amber-500 outline-none" 
                   value={formData.mobile} onChange={e => setFormData({...formData, mobile: e.target.value})} />
               </div>
             </form>
           )}
         </div>
 
-        <div className="p-4 border-t border-neutral-100 bg-neutral-50">
+        <div className="p-4 border-t border-[#1f2025] bg-black">
           {step === 1 ? (
             <button 
               disabled={cart.length === 0}
@@ -130,7 +130,7 @@ export default function QuoteCart({ cart, onClose, onRemove, onUpdateQuantity }:
               <button 
                 type="button"
                 onClick={() => setStep(1)}
-                className="flex-1 bg-white border border-neutral-300 text-neutral-700 py-3.5 rounded-xl font-medium"
+                className="flex-1 bg-[#0f1015] border border-[#1f2025] text-neutral-300 py-3.5 rounded-xl font-medium"
               >
                 Back
               </button>

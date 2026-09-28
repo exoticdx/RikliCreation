@@ -179,14 +179,14 @@ export default function CatalogueClient({
   return (
     <div className="pb-24 print:pb-0">
       {/* Navbar */}
-      <header className="sticky top-0 z-40 bg-white border-b border-neutral-200 shadow-sm px-4 md:px-8 flex items-center justify-between h-[72px] md:h-[80px] print:hidden">
+      <header className="sticky top-0 z-40 bg-black border-b border-[#1f2025] shadow-sm px-4 md:px-8 flex items-center justify-between h-[72px] md:h-[80px] print:hidden">
         <div className="flex items-center space-x-3 md:space-x-4">
           <img src="/Logo.png" alt="RC Imitation Jewellery Logo" className="h-10 md:h-12 w-auto object-contain" />
           <h1 className="text-lg md:text-xl font-bold text-nav-heading tracking-tight font-serif leading-tight">{STORE_CONFIG.storeName}</h1>
         </div>
         <button 
           onClick={() => setIsExportModalOpen(true)}
-          className="print:hidden flex items-center space-x-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-medium transition-colors text-sm"
+          className="print:hidden flex items-center space-x-2 bg-neutral-900 hover:bg-neutral-800 text-neutral-300 px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-medium transition-colors text-sm"
         >
           <FileDown className="w-4 h-4" />
           <span className="hidden sm:inline">Export PDF</span>
@@ -211,19 +211,19 @@ export default function CatalogueClient({
 
       {/* Category Bar */}
       {activeParentCategory && (
-        <div className="print:hidden sticky top-[72px] md:top-[80px] z-30 bg-white/95 backdrop-blur-sm border-b border-neutral-200 px-4 md:px-8 py-3 overflow-x-auto whitespace-nowrap hide-scrollbar flex space-x-2 md:space-x-4 shadow-sm">
+        <div className="print:hidden sticky top-[72px] md:top-[80px] z-30 bg-black/95 backdrop-blur-sm border-b border-[#1f2025] px-4 md:px-8 py-3 overflow-x-auto whitespace-nowrap hide-scrollbar flex space-x-2 md:space-x-4 shadow-sm">
           <button
             onClick={() => {
               setActiveParentCategory(null);
               setSelectedCategory('all');
             }}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors bg-white border border-brand/20 text-brand/80 hover:bg-brand/5`}
+            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors bg-black border border-brand/20 text-brand/80 hover:bg-brand/5`}
           >
             ← Back Home
           </button>
           <button
             onClick={() => setSelectedCategory('all')}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${selectedCategory === 'all' ? 'bg-brand text-button-text' : 'bg-white border border-brand/20 text-brand/80 hover:bg-brand/5'}`}
+            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${selectedCategory === 'all' ? 'bg-brand text-button-text' : 'bg-black border border-brand/20 text-brand/80 hover:bg-brand/5'}`}
           >
             All {activeParentCategory} ({initialProducts.filter(p => p.attributes?.parent_category === activeParentCategory).length})
           </button>
@@ -234,7 +234,7 @@ export default function CatalogueClient({
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${selectedCategory === cat.id ? 'bg-brand text-button-text' : 'bg-white border border-brand/20 text-brand/80 hover:bg-brand/5'}`}
+                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${selectedCategory === cat.id ? 'bg-brand text-button-text' : 'bg-black border border-brand/20 text-brand/80 hover:bg-brand/5'}`}
               >
                 {cat.name} ({count})
               </button>
@@ -245,7 +245,7 @@ export default function CatalogueClient({
 
       {/* Filter Bar - only show if there are filterable fields */}
       {filterableFields.length > 0 && (
-        <div className="print:hidden px-4 md:px-8 py-3 bg-white border-b border-neutral-100">
+        <div className="print:hidden px-4 md:px-8 py-3 bg-black border-b border-[#1f2025]">
           <div className="max-w-7xl mx-auto flex flex-wrap items-center gap-2">
             
             {/* Filter Dropdowns */}
@@ -262,7 +262,7 @@ export default function CatalogueClient({
                         [field.key]: val === 'all' ? undefined : val === 'true'
                       }));
                     }}
-                    className="text-sm border border-neutral-200 rounded-lg px-2 py-1.5 bg-white text-black focus:outline-none focus:ring-1 focus:ring-brand"
+                    className="text-sm border border-[#1f2025] rounded-lg px-2 py-1.5 bg-black text-white focus:outline-none focus:ring-1 focus:ring-brand"
                   >
                     <option value="all">{field.label}: All</option>
                     <option value="true">Yes</option>
@@ -278,7 +278,7 @@ export default function CatalogueClient({
                     key={field.key}
                     value={activeFilters[field.key] || 'all'}
                     onChange={e => setActiveFilters(prev => ({...prev, [field.key]: e.target.value === 'all' ? undefined : e.target.value}))}
-                    className="text-sm border border-neutral-200 rounded-lg px-2 py-1.5 bg-white text-black focus:outline-none focus:ring-1 focus:ring-brand"
+                    className="text-sm border border-[#1f2025] rounded-lg px-2 py-1.5 bg-black text-white focus:outline-none focus:ring-1 focus:ring-brand"
                   >
                     <option value="all">{field.label}: All</option>
                     {options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
@@ -363,7 +363,7 @@ export default function CatalogueClient({
                 <img src="/Logo.png" alt="Logo" className="h-12 w-auto object-contain" />
                 <h1 className="text-xl font-bold text-nav-heading tracking-tight font-serif leading-tight">{STORE_CONFIG.storeName}</h1>
               </div>
-              <div className="h-px bg-neutral-200 w-full mt-4"></div>
+              <div className="h-px bg-neutral-800 w-full mt-4"></div>
             </td>
           </tr>
         </thead>
@@ -371,7 +371,7 @@ export default function CatalogueClient({
           <tr>
             <td>
               {printGroups.sortedCategories.length === 0 ? (
-                <div className="text-center py-20 text-black">No products to print.</div>
+                <div className="text-center py-20 text-white">No products to print.</div>
               ) : (
                 printGroups.sortedCategories.map(cat => (
                   <div key={cat} className="mb-12">
@@ -407,10 +407,10 @@ export default function CatalogueClient({
       {totalCartItems > 0 && (
         <div className="print:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-brand text-button-text pl-4 pr-2 py-2 rounded-full shadow-2xl flex items-center space-x-3 md:space-x-4 animate-in fade-in zoom-in-95 animate-duration-200 border border-neutral-700 whitespace-nowrap">
           <div className="flex items-center space-x-2 text-sm font-medium">
-            <span className="flex shrink-0 items-center justify-center bg-white border border-brand0 text-brand w-6 h-6 rounded-full text-xs font-bold">{totalCartItems}</span>
+            <span className="flex shrink-0 items-center justify-center bg-black border border-brand0 text-brand w-6 h-6 rounded-full text-xs font-bold">{totalCartItems}</span>
             <span className="pr-1 md:pr-2">Items in Quote</span>
           </div>
-          <button onClick={() => setIsCartOpen(true)} className="bg-white shrink-0 text-brand px-4 md:px-5 py-2 rounded-full text-sm font-bold hover:bg-neutral-100 transition-colors">
+          <button onClick={() => setIsCartOpen(true)} className="bg-black shrink-0 text-brand px-4 md:px-5 py-2 rounded-full text-sm font-bold hover:bg-neutral-900 transition-colors">
             View Cart
           </button>
         </div>
@@ -444,12 +444,12 @@ export default function CatalogueClient({
       {/* Export PDF Modal */}
       {isExportModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm print:hidden">
-          <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl">
+          <div className="bg-black rounded-2xl p-6 max-w-md w-full shadow-2xl">
             <h3 className="text-xl font-bold text-brand mb-4">Export PDF Settings</h3>
-            <p className="text-sm text-neutral-600 mb-4">Select the categories you want to include in the PDF export.</p>
+            <p className="text-sm text-neutral-400 mb-4">Select the categories you want to include in the PDF export.</p>
             
             <div className="max-h-[300px] overflow-y-auto border rounded-lg p-2 mb-6">
-              <label className="flex items-center p-2 hover:bg-neutral-50 rounded cursor-pointer border-b mb-1">
+              <label className="flex items-center p-2 hover:bg-[#1f2025] rounded cursor-pointer border-b mb-1">
                 <input 
                   type="checkbox" 
                   checked={exportSelectedCategories.length === initialCategories.length}
@@ -462,11 +462,11 @@ export default function CatalogueClient({
                   }}
                   className="w-4 h-4 text-brand rounded focus:ring-brand"
                 />
-                <span className="ml-3 font-medium text-black">Select All Categories</span>
+                <span className="ml-3 font-medium text-white">Select All Categories</span>
               </label>
               
               {initialCategories.map(cat => (
-                <label key={cat.id} className="flex items-center p-2 hover:bg-neutral-50 rounded cursor-pointer">
+                <label key={cat.id} className="flex items-center p-2 hover:bg-[#1f2025] rounded cursor-pointer">
                   <input 
                     type="checkbox"
                     checked={exportSelectedCategories.includes(cat.id)}
@@ -479,7 +479,7 @@ export default function CatalogueClient({
                     }}
                     className="w-4 h-4 text-brand rounded focus:ring-brand"
                   />
-                  <span className="ml-3 text-black">{cat.name}</span>
+                  <span className="ml-3 text-white">{cat.name}</span>
                 </label>
               ))}
             </div>
@@ -487,7 +487,7 @@ export default function CatalogueClient({
             <div className="flex gap-3 justify-end">
               <button 
                 onClick={() => setIsExportModalOpen(false)}
-                className="px-4 py-2.5 rounded-lg font-medium text-neutral-600 hover:bg-neutral-100 transition-colors"
+                className="px-4 py-2.5 rounded-lg font-medium text-neutral-400 hover:bg-neutral-900 transition-colors"
               >
                 Cancel
               </button>

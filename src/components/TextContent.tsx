@@ -16,7 +16,7 @@ export default function TextContent({ title, body }: TextContentProps) {
         </h2>
       )}
       {body && (
-        <p className="text-neutral-600 text-sm md:text-base leading-relaxed">
+        <p className="text-neutral-400 text-sm md:text-base leading-relaxed">
           {body}
         </p>
       )}

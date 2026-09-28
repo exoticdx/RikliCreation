@@ -15,7 +15,7 @@ export default function ClientToaster() {
               {t.type !== 'loading' && (
                 <button
                   onClick={() => toast.dismiss(t.id)}
-                  className="ml-2 p-1 rounded-full text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 transition-colors"
+                  className="ml-2 p-1 rounded-full text-neutral-400 hover:text-neutral-300 hover:bg-[#1a1b23] transition-colors"
                   aria-label="Close"
                 >
                   <X className="w-4 h-4" />

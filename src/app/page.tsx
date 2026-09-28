@@ -12,7 +12,7 @@ export default async function Home() {
   })) || [];
 
   return (
-    <main className="min-h-screen bg-neutral-50 text-brand font-sans">
+    <main className="min-h-screen bg-black text-brand font-sans">
       <CatalogueClient initialCategories={categories || []} initialProducts={products} fieldOptions={fieldOptions || []} />
     </main>
   );

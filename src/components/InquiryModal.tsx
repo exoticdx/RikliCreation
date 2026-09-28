@@ -28,45 +28,45 @@ export default function InquiryModal({ product, onClose }: InquiryModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in animate-duration-200">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-in zoom-in-95 animate-duration-200">
-        <div className="flex justify-between items-center p-4 border-b border-neutral-100 bg-neutral-50/50">
+      <div className="bg-[#0f1015] rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-in zoom-in-95 animate-duration-200">
+        <div className="flex justify-between items-center p-4 border-b border-[#1f2025] bg-black/50">
           <h3 className="font-semibold text-brand">Inquire about Product</h3>
-          <button onClick={onClose} className="p-1 hover:bg-neutral-200 rounded-full text-neutral-500 transition-colors">
+          <button onClick={onClose} className="p-1 hover:bg-neutral-900 rounded-full text-neutral-400 transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
         
-        <div className="p-4 bg-neutral-50 flex gap-4 items-center">
-          <div className="w-16 h-16 rounded-lg overflow-hidden bg-neutral-200 shrink-0">
+        <div className="p-4 bg-black flex gap-4 items-center">
+          <div className="w-16 h-16 rounded-lg overflow-hidden bg-neutral-900 shrink-0">
             {product.imageUrl ? (
               <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
             ) : null}
           </div>
           <div>
-            <div className="text-xs text-neutral-500 font-mono">SKU: {product.sku}</div>
+            <div className="text-xs text-neutral-400 font-mono">SKU: {product.sku}</div>
             <div className="font-medium text-brand leading-tight">{product.name}</div>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-1">Name *</label>
-            <input required type="text" className="w-full border border-neutral-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none" 
+            <label className="block text-sm font-medium text-neutral-300 mb-1">Name *</label>
+            <input required type="text" className="w-full bg-black text-white border border-[#1f2025] rounded-lg px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none" 
               value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-1">Company Name</label>
-            <input type="text" className="w-full border border-neutral-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none" 
+            <label className="block text-sm font-medium text-neutral-300 mb-1">Company Name</label>
+            <input type="text" className="w-full bg-black text-white border border-[#1f2025] rounded-lg px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none" 
               value={formData.company} onChange={e => setFormData({...formData, company: e.target.value})} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-1">Mobile Number *</label>
-            <input required type="tel" className="w-full border border-neutral-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none" 
+            <label className="block text-sm font-medium text-neutral-300 mb-1">Mobile Number *</label>
+            <input required type="tel" className="w-full bg-black text-white border border-[#1f2025] rounded-lg px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none" 
               value={formData.mobile} onChange={e => setFormData({...formData, mobile: e.target.value})} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-1">Quantity</label>
-            <input type="number" min="1" className="w-full border border-neutral-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none" 
+            <label className="block text-sm font-medium text-neutral-300 mb-1">Quantity</label>
+            <input type="number" min="1" className="w-full bg-black text-white border border-[#1f2025] rounded-lg px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none" 
               value={formData.quantity} onChange={e => setFormData({...formData, quantity: parseInt(e.target.value) || 1})} />
           </div>
           
