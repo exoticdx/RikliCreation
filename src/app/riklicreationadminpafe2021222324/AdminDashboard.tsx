@@ -202,6 +202,44 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
     setConfirmDelete(null);
   };
 
+    const handleColorImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const t = toast.loading('Uploading color image...');
+    try {
+      const { getUploadUrl } = await import('@/app/actions');
+      const res = await getUploadUrl(file.name, file.type);
+      if (res.success && res.uploadUrl && res.finalUrl) {
+        const uploadRes = await fetch(res.uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type || 'application/octet-stream' }});
+        if (uploadRes.ok) {
+          toast.success('Color image uploaded', { id: t });
+          const colors = [...(newProduct.attributes.colors || [])];
+          colors[index] = { ...colors[index], imageUrl: res.finalUrl };
+          setNewProduct({...newProduct, attributes: {...newProduct.attributes, colors}});
+          return;
+        }
+      }
+      throw new Error('Upload failed');
+    } catch (err: any) {
+      toast.error(err.message || 'Upload failed', { id: t });
+    }
+  };
+
+  const addColorVariant = () => {
+    const colors = [...(newProduct.attributes.colors || []), { name: '', imageUrl: '' }];
+    setNewProduct({...newProduct, attributes: {...newProduct.attributes, colors}});
+  };
+  const removeColorVariant = (index: number) => {
+    const colors = [...(newProduct.attributes.colors || [])];
+    colors.splice(index, 1);
+    setNewProduct({...newProduct, attributes: {...newProduct.attributes, colors}});
+  };
+  const updateColorVariant = (index: number, name: string) => {
+    const colors = [...(newProduct.attributes.colors || [])];
+    colors[index] = { ...colors[index], name };
+    setNewProduct({...newProduct, attributes: {...newProduct.attributes, colors}});
+  };
+
   const handleAddProduct = async () => {
     if (!newProduct.name || !newProduct.sku || !newProduct.categoryId || !newProduct.attributes?.parent_category) {
       toast.error('Please fill required fields (SKU, Name, Category 1, Category 2)');
@@ -374,6 +412,18 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
         };
         if (gallery.length > 1) {
           attributes.gallery = gallery.slice(1);
+        }
+
+        const colors = [];
+        for (let i = 1; i <= 10; i++) {
+          const cName = rowData[`Color ${i} Name`];
+          const cImg = rowData[`Color ${i} Image`];
+          if (cName || cImg) {
+            colors.push({ name: cName || '', imageUrl: cImg || '' });
+          }
+        }
+        if (colors.length > 0) {
+          attributes.colors = colors;
         }
 
         STORE_CONFIG.customFields.forEach(field => {
@@ -762,6 +812,45 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
                   ))}
                 </div>
               )}
+
+              <div className="border-t pt-4 mt-4">
+                <div className="flex justify-between items-center mb-4">
+                  <label className="block text-sm font-semibold text-neutral-800">Color Variants</label>
+                  <button onClick={addColorVariant} className="text-xs bg-brand text-button-text px-3 py-1.5 rounded-lg flex items-center hover:opacity-90">
+                    <Plus className="w-3 h-3 mr-1" /> Add Color
+                  </button>
+                </div>
+                <div className="space-y-3">
+                  {(newProduct.attributes.colors || []).map((color: any, idx: number) => (
+                    <div key={idx} className="flex items-center gap-3 bg-neutral-50 p-3 rounded-lg border border-neutral-100">
+                      <input 
+                        type="text" 
+                        value={color.name} 
+                        onChange={e => updateColorVariant(idx, e.target.value)} 
+                        placeholder="Color Name (e.g. Red)" 
+                        className="flex-1 border p-2 rounded-lg bg-white text-sm" 
+                      />
+                      <label className="cursor-pointer shrink-0">
+                        <div className="w-10 h-10 rounded-lg border border-neutral-200 bg-white flex items-center justify-center overflow-hidden hover:bg-neutral-100 transition-colors">
+                          {color.imageUrl ? (
+                            <img src={color.imageUrl} alt="color" className="w-full h-full object-cover" />
+                          ) : (
+                            <Upload className="w-4 h-4 text-neutral-400" />
+                          )}
+                        </div>
+                        <input type="file" accept="image/*" className="hidden" onChange={e => handleColorImageUpload(e, idx)} />
+                      </label>
+                      <button onClick={() => removeColorVariant(idx)} className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors shrink-0">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                  {(newProduct.attributes.colors || []).length === 0 && (
+                    <div className="text-xs text-neutral-400 text-center py-4 border border-dashed rounded-lg">No colors added. Click 'Add Color' to create variants.</div>
+                  )}
+                </div>
+              </div>
+
             </div>
 
             <div className="p-6 border-t bg-neutral-50 rounded-b-2xl flex justify-end gap-3 shrink-0">

@@ -14,6 +14,10 @@ interface ProductCardProps {
 
 export default function ProductCard({ product, onInquire, onAdd, onImageClick, isInCart }: ProductCardProps) {
   const [isAdded, setIsAdded] = useState(false);
+  const [activeColorIdx, setActiveColorIdx] = useState<number | null>(null);
+
+  const colors = product.attributes?.colors || [];
+  const displayImage = activeColorIdx !== null && colors[activeColorIdx] ? colors[activeColorIdx].imageUrl : product.imageUrl;
 
   const handleAdd = () => {
     onAdd();
@@ -30,9 +34,9 @@ export default function ProductCard({ product, onInquire, onAdd, onImageClick, i
         className="relative aspect-square bg-neutral-100 w-full overflow-hidden cursor-pointer"
         onClick={onImageClick}
       >
-        {product.imageUrl ? (
+        {displayImage ? (
           <img 
-            src={product.imageUrl} 
+            src={displayImage} 
             alt={product.name} 
             className="w-full h-full object-cover md:group-hover:scale-105 transition-transform duration-500"
           />
@@ -53,6 +57,27 @@ export default function ProductCard({ product, onInquire, onAdd, onImageClick, i
           </div>
         )}
         
+                {/* Colors */}
+        {colors.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mb-2">
+            <button 
+              onClick={(e) => { e.stopPropagation(); setActiveColorIdx(null); }}
+              className={`text-[10px] md:text-xs px-2 py-1 rounded-full border transition-colors ${activeColorIdx === null ? 'border-brand bg-brand/5 text-brand font-medium' : 'border-neutral-200 text-neutral-500 hover:border-neutral-300'}`}
+            >
+              Default
+            </button>
+            {colors.map((c: any, idx: number) => (
+              <button 
+                key={idx}
+                onClick={(e) => { e.stopPropagation(); setActiveColorIdx(idx); }}
+                className={`text-[10px] md:text-xs px-2 py-1 rounded-full border transition-colors ${activeColorIdx === idx ? 'border-brand bg-brand/5 text-brand font-medium' : 'border-neutral-200 text-neutral-500 hover:border-neutral-300'}`}
+              >
+                {c.name}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* Dynamic Attributes */}
         <div className="flex-grow">
           {product.attributes && Object.keys(product.attributes).length > 0 && (

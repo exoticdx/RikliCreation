@@ -71,13 +71,6 @@ export const STORE_CONFIG: StoreConfig = {
   ],
   customFields: [
     {
-      key: 'price',
-      label: 'Price',
-      type: 'number',
-      isFilterable: false,
-      isSortable: false
-    },
-    {
       key: 'material',
       label: 'Material',
       type: 'select',

@@ -26,6 +26,11 @@ export async function GET() {
       { header: 'Image URL 5', key: 'image_url_5', width: 40 },
     ];
 
+    for (let i = 1; i <= 10; i++) {
+      columns.push({ header: `Color ${i} Name`, key: `color_${i}_name`, width: 15 });
+      columns.push({ header: `Color ${i} Image`, key: `color_${i}_image`, width: 35 });
+    }
+
     // Add custom fields
     STORE_CONFIG.customFields.forEach(field => {
       columns.push({ header: `Attr: ${field.label}`, key: `attr_${field.key}`, width: 20 });
@@ -70,7 +75,7 @@ export async function GET() {
           const colLetter = dropdownSheet.getColumn(dropdownColIndex).letter;
           const range = `DropdownLists!$${colLetter}$1:$${colLetter}$${options.length}`;
           
-          const mainSheetCol = sheet.getColumn(11 + index + 1).letter;
+          const mainSheetCol = sheet.getColumn(31 + index + 1).letter;
           
           for (let i = 2; i <= 1000; i++) {
             sheet.getCell(`${mainSheetCol}${i}`).dataValidation = {
@@ -85,7 +90,7 @@ export async function GET() {
           dropdownColIndex++;
         }
       } else if (field.type === 'boolean') {
-        const mainSheetCol = sheet.getColumn(11 + index + 1).letter;
+        const mainSheetCol = sheet.getColumn(31 + index + 1).letter;
         for (let i = 2; i <= 1000; i++) {
           sheet.getCell(`${mainSheetCol}${i}`).dataValidation = {
             type: 'list',
