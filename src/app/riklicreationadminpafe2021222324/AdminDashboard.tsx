@@ -241,8 +241,8 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
   };
 
   const handleAddProduct = async () => {
-    if (!newProduct.name || !newProduct.sku || !newProduct.categoryId || !newProduct.attributes?.parent_category) {
-      toast.error('Please fill required fields (SKU, Name, Category 1, Category 2)');
+    if (!newProduct.name || !newProduct.sku || !newProduct.categoryId || !newProduct.attributes?.parent_category || !newProduct.attributes?.color) {
+      toast.error('Please fill required fields (SKU, Name, Primary Color, Category 1, Category 2)');
       return;
     }
     const t = toast.loading(editingProductId ? 'Updating product...' : 'Adding product...');
@@ -387,6 +387,7 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
 
         const sku = rowData['SKU'];
         const name = rowData['Title'];
+        const primaryColor = rowData['Primary Color'];
         const category1Name = rowData['Category 1 (Main)'];
         const categoryName = rowData['Category 2 (Sub)'];
         const price = rowData['Price'] ? Number(rowData['Price']) : undefined;
@@ -401,14 +402,15 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
         
         const imageUrl = gallery.length > 0 ? gallery[0] : '';
 
-        if (!sku || !name || !categoryName || !category1Name) {
+        if (!sku || !name || !categoryName || !category1Name || !primaryColor) {
           // If the row is completely empty, skip it. If partially filled, throw error.
-          if (!sku && !name && !categoryName && !category1Name) return;
-          throw new Error(`Row ${rowNumber} missing required fields (SKU, Title, Category 1, Category 2).`);
+          if (!sku && !name && !categoryName && !category1Name && !primaryColor) return;
+          throw new Error(`Row ${rowNumber} missing required fields (SKU, Title, Primary Color, Category 1, Category 2).`);
         }
         
         const attributes: any = {
-          parent_category: category1Name
+          parent_category: category1Name,
+          color: primaryColor
         };
         if (gallery.length > 1) {
           attributes.gallery = gallery.slice(1);
@@ -725,6 +727,9 @@ export default function AdminDashboard({ categories, products, fieldOptions = []
                 <input value={newProduct.name} onChange={e => setNewProduct({...newProduct, name: e.target.value})} 
                   className="w-full border p-2.5 rounded-lg text-black placeholder:text-neutral-500" placeholder="Product Name *" />
               </div>
+
+              <input value={newProduct.attributes?.color || ''} onChange={e => setNewProduct({...newProduct, attributes: {...newProduct.attributes, color: e.target.value}})} 
+                className="w-full border p-2.5 rounded-lg text-black placeholder:text-neutral-500" placeholder="Primary Color (e.g. Red) *" />
               
               <textarea value={newProduct.description} onChange={e => setNewProduct({...newProduct, description: e.target.value})} 
                 className="w-full border p-2.5 rounded-lg text-black placeholder:text-neutral-500 min-h-[100px]" placeholder="Description" />

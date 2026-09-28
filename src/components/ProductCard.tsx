@@ -64,7 +64,7 @@ export default function ProductCard({ product, onInquire, onAdd, onImageClick, i
               onClick={(e) => { e.stopPropagation(); setActiveColorIdx(null); }}
               className={`text-[10px] md:text-xs px-2 py-1 rounded-full border transition-colors ${activeColorIdx === null ? 'border-brand bg-brand/5 text-brand font-medium' : 'border-neutral-200 text-neutral-500 hover:border-neutral-300'}`}
             >
-              Default
+              {product.attributes?.color || 'Default'}
             </button>
             {colors.map((c: any, idx: number) => (
               <button 

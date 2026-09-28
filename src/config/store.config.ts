@@ -79,13 +79,6 @@ export const STORE_CONFIG: StoreConfig = {
       isSortable: false
     },
     {
-      key: 'color',
-      label: 'Color',
-      type: 'text',
-      isFilterable: false,
-      isSortable: false
-    },
-    {
       key: 'Size',
       label: 'Size',
       defaultValue:'M,L,XL,XXL,XXXL',
