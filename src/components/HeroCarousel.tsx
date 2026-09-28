@@ -47,11 +47,11 @@ export default function HeroCarousel({ slides }: HeroCarouselProps) {
         <div className="flex touch-pan-y">
           {slides.map((slide, index) => (
             <div key={index} className="flex-[0_0_100%] min-w-0">
-              <div className="bg-brand text-button-text text-left py-8 px-5 md:py-12 md:px-8 rounded-2xl mx-4 my-2 md:mx-8 shadow-md h-[160px] md:h-[200px] flex flex-col justify-center">
-                <h2 className="text-xl md:text-3xl font-bold mb-2 md:mb-3 leading-snug">
+              <div className="bg-[#ffe6cb] text-button-text text-left py-8 px-5 md:py-12 md:px-8 rounded-2xl mx-4 my-2 md:mx-8 shadow-md h-[160px] md:h-[200px] flex flex-col justify-center">
+                <h2 className="text-xl text-black md:text-3xl font-bold mb-2 md:mb-3 leading-snug">
                   {slide.title}
                 </h2>
-                <p className="text-sm md:text-base text-button-text/90 font-bold">
+                <p className="text-sm text-black md:text-base text-black/50 font-bold">
                   {slide.subtitle}
                 </p>
               </div>
@@ -68,8 +68,8 @@ export default function HeroCarousel({ slides }: HeroCarouselProps) {
             onClick={() => scrollTo(index)}
             className={`w-2 h-2 rounded-full transition-all duration-300 ${
               index === selectedIndex 
-                ? 'bg-brand w-6' 
-                : 'bg-neutral-300 hover:bg-neutral-400'
+                ? 'bg-white w-6' 
+                : 'bg-white/30 hover:bg-white/60'
             }`}
             aria-label={`Go to slide ${index + 1}`}
           />

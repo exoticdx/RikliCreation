@@ -34,7 +34,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: 'Google Sans', sans-serif;
-  --font-serif: 'Lobster', cursive;
+  --font-serif: 'Lobster', ;
   --font-mono: var(--font-geist-mono);
   
   --color-nav-heading: var(--theme-nav-heading, #ffffff);
@@ -99,3 +99,7 @@ body {
 
 .animate-duration-200 { animation-duration: 200ms; }
 .animate-duration-300 { animation-duration: 300ms; }
+
+.NavButtonColour {
+  color: #ffffff;
+}

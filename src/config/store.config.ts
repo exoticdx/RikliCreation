@@ -66,8 +66,8 @@ export const STORE_CONFIG: StoreConfig = {
   whatsappNumber: "919510072745",
   maxImagesPerProduct: 5,
   homepageCategories: [
-    { name: "Cord Set", image: "https://images.unsplash.com/photo-1618932260643-eee4a2f65ba8?q=80&w=800&auto=format&fit=crop" },
-    { name: "Kurties", image: "https://images.unsplash.com/photo-1583391733958-d25e07fac662?q=80&w=800&auto=format&fit=crop" }
+    { name: "Cord Set", image: "https://i.pinimg.com/1200x/f3/be/68/f3be681610e27754af9c37ef095c0dd1.jpg" },
+    { name: "Kurties", image: "https://i.pinimg.com/736x/fa/8c/c7/fa8cc72d6f36e5cc68dcaff2a96e3a9d.jpg" }
   ],
   customFields: [
     {
@@ -97,9 +97,19 @@ export const STORE_CONFIG: StoreConfig = {
   ],
   homeLayout: [
     {
-      type: 'textContent',
-      title: 'Address',
-      body: 'D-253 Global Textile Market, Surat'
+      type: 'heroCarousel',
+      slides: 
+      [
+        { 
+          title: "Address", 
+          subtitle: "B-5144/45 Global Textile Market, Surat, Gujarat"
+        },
+        { 
+          title: "MOQ", 
+          subtitle: "Minimum 10 Set"
+        },
+
+      ]
     },
     // {
     //   type: 'textContent',

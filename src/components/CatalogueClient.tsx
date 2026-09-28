@@ -217,13 +217,13 @@ export default function CatalogueClient({
               setActiveParentCategory(null);
               setSelectedCategory('all');
             }}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors bg-black border border-brand/20 text-brand/80 hover:bg-brand/5`}
+            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors bg-black border border-brand/20 text-brand/80 hover:bg-brand/5 NavButtonColour`}
           >
             ← Back Home
           </button>
           <button
             onClick={() => setSelectedCategory('all')}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${selectedCategory === 'all' ? 'bg-brand text-button-text' : 'bg-black border border-brand/20 text-brand/80 hover:bg-brand/5'}`}
+            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${selectedCategory === 'all' ? 'bg-[#fdd0a0] text-black' : 'bg-black border border-brand/20 text-white/80 hover:bg-white'}`}
           >
             All {activeParentCategory} ({initialProducts.filter(p => p.attributes?.parent_category === activeParentCategory).length})
           </button>
@@ -234,7 +234,7 @@ export default function CatalogueClient({
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${selectedCategory === cat.id ? 'bg-brand text-button-text' : 'bg-black border border-brand/20 text-brand/80 hover:bg-brand/5'}`}
+                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${selectedCategory === cat.id ? 'bg-[#fdd0a0] text-black' : 'bg-black border border-brand/20 text-white/80 hover:bg-white'}`}
               >
                 {cat.name} ({count})
               </button>
@@ -487,7 +487,7 @@ export default function CatalogueClient({
             <div className="flex gap-3 justify-end">
               <button 
                 onClick={() => setIsExportModalOpen(false)}
-                className="px-4 py-2.5 rounded-lg font-medium text-neutral-400 hover:bg-neutral-900 transition-colors"
+                className="px-4 py-2.5 rounded-lg font-medium text-neutral-400 hover:bg-neutral-900 transition-colors "
               >
                 Cancel
               </button>
