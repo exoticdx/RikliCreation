@@ -1,38 +1,45 @@
 import React, { useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Product } from './CatalogueClient';
-import { MessageCircle, Plus, Check } from 'lucide-react';
+import { MessageCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { STORE_CONFIG } from '@/config/store.config';
 
 interface ProductCardProps {
   product: Product;
   onInquire: () => void;
-  onAdd: () => void;
-  onImageClick: () => void;
-  isInCart: boolean;
+  onAdd?: () => void;
+  onImageClick?: () => void;
+  isInCart?: boolean;
 }
 
 export default function ProductCard({ product, onInquire, onAdd, onImageClick, isInCart }: ProductCardProps) {
-  const [isAdded, setIsAdded] = useState(false);
+  const router = useRouter();
   const [activeColorIdx, setActiveColorIdx] = useState<number | null>(null);
 
   const colors = product.attributes?.colors || [];
   const displayImage = activeColorIdx !== null && colors[activeColorIdx] ? colors[activeColorIdx].imageUrl : product.imageUrl;
 
-  const handleAdd = () => {
-    onAdd();
-    setIsAdded(true);
-    toast.success('Added to Quote List');
-    setTimeout(() => setIsAdded(false), 2000);
+  const handleCardClick = (e: React.MouseEvent) => {
+    // If the click is on an interactive element (button, link, input), let it handle its own event
+    const target = e.target as HTMLElement;
+    if (target.closest('button') || target.closest('a')) {
+      return;
+    }
+    router.push(`/product/${product.id}`);
   };
 
-  const showAddedState = isInCart || isAdded;
-
   return (
-    <div className="bg-black rounded-xl overflow-hidden shadow-sm border border-[#1f2025] md:hover:shadow-md transition-shadow group flex flex-col h-full print:break-inside-avoid">
-      <div 
-        className="relative aspect-square bg-neutral-900 w-full overflow-hidden cursor-pointer"
-        onClick={onImageClick}
+    <div 
+      onClick={handleCardClick}
+      className="bg-black rounded-xl overflow-hidden shadow-sm border border-[#1f2025] hover:border-neutral-700 md:hover:shadow-md transition-all group flex flex-col h-full print:break-inside-avoid cursor-pointer"
+    >
+      {/* Product Image */}
+      <Link 
+        href={`/product/${product.id}`}
+        className="relative aspect-square bg-neutral-900 w-full overflow-hidden block"
+        onClick={(e) => e.stopPropagation()}
       >
         {displayImage ? (
           <img 
@@ -45,10 +52,30 @@ export default function ProductCard({ product, onInquire, onAdd, onImageClick, i
             No Image
           </div>
         )}
-      </div>
+
+        {/* Color Badge indicator if variant active */}
+        {activeColorIdx !== null && colors[activeColorIdx] && (
+          <span className="absolute bottom-2 left-2 bg-black/75 backdrop-blur-sm border border-white/10 text-[10px] text-white px-2 py-0.5 rounded-full font-medium">
+            {colors[activeColorIdx].name}
+          </span>
+        )}
+      </Link>
+
+      {/* Card Body */}
       <div className="p-3 md:p-4 flex flex-col flex-grow">
-        <div className="text-[10px] md:text-xs text-neutral-400 mb-1 font-mono uppercase tracking-wider line-clamp-1">SKU: {product.sku}</div>
-        <h3 className="font-medium text-white mb-1 leading-snug text-sm md:text-base line-clamp-1 md:line-clamp-2">{product.name}</h3>
+        <div className="text-[10px] md:text-xs text-neutral-400 mb-1 font-mono uppercase tracking-wider line-clamp-1">
+          SKU: {product.sku}
+        </div>
+        
+        <Link 
+          href={`/product/${product.id}`}
+          onClick={(e) => e.stopPropagation()}
+          className="hover:text-brand transition-colors block"
+        >
+          <h3 className="font-medium text-white mb-1 leading-snug text-sm md:text-base line-clamp-1 md:line-clamp-2">
+            {product.name}
+          </h3>
+        </Link>
         
         {/* Price */}
         {product.attributes?.price && (
@@ -57,20 +84,38 @@ export default function ProductCard({ product, onInquire, onAdd, onImageClick, i
           </div>
         )}
         
-                {/* Colors */}
+        {/* Color Swatches */}
         {colors.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mb-2">
             <button 
-              onClick={(e) => { e.stopPropagation(); setActiveColorIdx(null); }}
-              className={`text-[10px] md:text-xs px-2 py-1 rounded-full border transition-colors ${activeColorIdx === null ? 'border-brand bg-brand/5 text-brand font-medium' : 'border-[#2a2b30] text-neutral-400 hover:border-[#3a3b40]'}`}
+              type="button"
+              onClick={(e) => { 
+                e.preventDefault(); 
+                e.stopPropagation(); 
+                setActiveColorIdx(null); 
+              }}
+              className={`text-[10px] md:text-xs px-2 py-1 rounded-full border transition-colors ${
+                activeColorIdx === null 
+                  ? 'border-brand bg-brand/5 text-brand font-medium' 
+                  : 'border-[#2a2b30] text-neutral-400 hover:border-[#3a3b40]'
+              }`}
             >
               {product.attributes?.color || 'Default'}
             </button>
             {colors.map((c: any, idx: number) => (
               <button 
                 key={idx}
-                onClick={(e) => { e.stopPropagation(); setActiveColorIdx(idx); }}
-                className={`text-[10px] md:text-xs px-2 py-1 rounded-full border transition-colors ${activeColorIdx === idx ? 'border-brand bg-brand/5 text-brand font-medium' : 'border-[#2a2b30] text-neutral-400 hover:border-[#3a3b40]'}`}
+                type="button"
+                onClick={(e) => { 
+                  e.preventDefault(); 
+                  e.stopPropagation(); 
+                  setActiveColorIdx(idx); 
+                }}
+                className={`text-[10px] md:text-xs px-2 py-1 rounded-full border transition-colors ${
+                  activeColorIdx === idx 
+                    ? 'border-brand bg-brand/5 text-brand font-medium' 
+                    : 'border-[#2a2b30] text-neutral-400 hover:border-[#3a3b40]'
+                }`}
               >
                 {c.name}
               </button>
@@ -91,24 +136,25 @@ export default function ProductCard({ product, onInquire, onAdd, onImageClick, i
                 let displayVal = val;
                 if (field.type === 'boolean') {
                   displayVal = val ? 'Yes' : 'No';
-              } else if (field.type === 'sizes_manager') {
-                if (Array.isArray(val)) {
-                  const available = val.filter(s => s.inStock).map(s => s.size);
-                  if (available.length === 0) return null; // Don't show if all sizes out of stock
-                  displayVal = available.join(', ');
+                } else if (field.type === 'sizes_manager') {
+                  if (Array.isArray(val)) {
+                    const available = val.filter(s => s.inStock).map(s => s.size);
+                    if (available.length === 0) return null;
+                    displayVal = available.join(', ');
+                  }
                 }
-              }
-              
-              return (
-                <span key={field.key} className="text-[10px] md:text-xs bg-neutral-900 text-neutral-400 px-1.5 py-0.5 rounded">
-                  <span className="font-medium">{field.label}:</span> {displayVal}
-                </span>
-              );
-            })}
-          </div>
-        )}
+                
+                return (
+                  <span key={field.key} className="text-[10px] md:text-xs bg-neutral-900 text-neutral-400 px-1.5 py-0.5 rounded">
+                    <span className="font-medium">{field.label}:</span> {displayVal}
+                  </span>
+                );
+              })}
+            </div>
+          )}
         </div>
         
+        {/* Actions */}
         <div className="flex flex-col space-y-2 mt-auto z-10 relative pt-2">
           
           {/* Print-only WhatsApp Link */}
@@ -126,14 +172,17 @@ export default function ProductCard({ product, onInquire, onAdd, onImageClick, i
           <div className="print:hidden flex flex-col space-y-2">
             <button 
               type="button"
-              onClick={onInquire}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onInquire();
+              }}
               className="w-full flex items-center justify-center space-x-1.5 md:space-x-2 bg-brand md:hover:bg-brand-dark text-button-text px-2 md:px-4 py-1.5 rounded-lg text-xs md:text-sm font-medium transition-colors active:scale-95"
             >
               <MessageCircle className="w-3.5 h-3.5 md:w-4 md:h-4" />
               <span className="hidden sm:inline">Inquire on WhatsApp</span>
               <span className="sm:hidden">Inquire</span>
             </button>
-            {/* "Add to Quote" disabled for this catalogue as requested */}
           </div>
         </div>
       </div>

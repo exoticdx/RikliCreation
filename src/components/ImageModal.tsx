@@ -6,15 +6,26 @@ import { Product } from './CatalogueClient';
 interface ImageModalProps {
   product: Product;
   onClose: () => void;
+  images?: string[];
+  initialIndex?: number;
 }
 
-export default function ImageModal({ product, onClose }: ImageModalProps) {
-  const images = [product.imageUrl];
+export default function ImageModal({ product, onClose, images: propImages, initialIndex = 0 }: ImageModalProps) {
+  const defaultImages = [product.imageUrl];
   if (product.attributes?.gallery && Array.isArray(product.attributes.gallery)) {
-    images.push(...product.attributes.gallery);
+    defaultImages.push(...product.attributes.gallery);
+  }
+  if (product.attributes?.colors && Array.isArray(product.attributes.colors)) {
+    product.attributes.colors.forEach((c: any) => {
+      if (c.imageUrl && !defaultImages.includes(c.imageUrl)) {
+        defaultImages.push(c.imageUrl);
+      }
+    });
   }
 
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const images = propImages && propImages.length > 0 ? propImages : defaultImages.filter(Boolean);
+
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
 
   // Prevent body scroll when modal is open
   useEffect(() => {
