@@ -6,12 +6,10 @@ import {
   ArrowLeft, 
   MessageCircle, 
   Share2, 
-  Copy, 
   Check, 
   ZoomIn, 
   ChevronLeft, 
   ChevronRight, 
-  Sparkles,
   ShieldCheck,
   Truck
 } from 'lucide-react';
@@ -80,7 +78,6 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
   const [selectedColor, setSelectedColor] = useState<string>(primaryColorName);
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [isZoomOpen, setIsZoomOpen] = useState(false);
-  const [isCopiedSku, setIsCopiedSku] = useState(false);
   const [isNavigatingBack, setIsNavigatingBack] = useState(false);
 
   useEffect(() => {
@@ -130,13 +127,6 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
     if (allPhotos.length <= 1) return;
     const prevIdx = (activePhotoIndex - 1 + allPhotos.length) % allPhotos.length;
     handlePhotoSelect(prevIdx);
-  };
-
-  const handleCopySku = () => {
-    navigator.clipboard.writeText(product.sku);
-    setIsCopiedSku(true);
-    toast.success('SKU copied to clipboard');
-    setTimeout(() => setIsCopiedSku(false), 2000);
   };
 
   const handleShare = () => {
@@ -331,18 +321,6 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
 
             {/* ALL PHOTOS OF COLOURS SHOWCASE SECTION */}
             <div className="bg-[#0f1015] border border-[#1f2025] rounded-2xl p-4 md:p-6 shadow-md">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center space-x-2">
-                  <Sparkles className="w-4 h-4 text-brand" />
-                  <h3 className="font-semibold text-sm md:text-base text-white">
-                    All Color Photos & Gallery
-                  </h3>
-                </div>
-                <span className="text-xs text-neutral-400 font-mono">
-                  {allPhotos.length} {allPhotos.length === 1 ? 'photo' : 'photos'}
-                </span>
-              </div>
-
               {allPhotos.length === 0 ? (
                 <p className="text-xs text-neutral-500 py-2">No additional color photos uploaded.</p>
               ) : (
@@ -392,49 +370,15 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
             {/* Title & SKU & Price Box */}
             <div className="bg-[#0f1015] border border-[#1f2025] rounded-2xl p-6 shadow-md space-y-4">
               
-              {/* Category & Badge */}
-              <div className="flex items-center justify-between gap-2 flex-wrap">
-                <div className="flex items-center gap-2">
-                  {product.attributes?.parent_category && (
-                    <span className="text-xs bg-neutral-900 border border-[#1f2025] text-neutral-300 px-2.5 py-1 rounded-md font-medium">
-                      {product.attributes.parent_category}
-                    </span>
-                  )}
-                  {product.category?.name && (
-                    <span className="text-xs bg-brand/10 border border-brand/20 text-brand px-2.5 py-1 rounded-md font-medium">
-                      {product.category.name}
-                    </span>
-                  )}
-                </div>
-
-                {/* In Stock Badge */}
-                <span className="inline-flex items-center space-x-1.5 text-xs text-emerald-400 bg-emerald-950/40 border border-emerald-800/40 px-2.5 py-1 rounded-full font-medium">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                  <span>In Stock</span>
-                </span>
+              {/* Product SKU */}
+              <div className="text-xs text-neutral-400 font-mono uppercase tracking-wider">
+                SKU: {product.sku}
               </div>
 
               {/* Product Name */}
               <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight font-serif leading-tight">
                 {product.name}
               </h1>
-
-              {/* SKU & Copy Action */}
-              <div className="flex items-center justify-between text-xs py-2 px-3 bg-black rounded-xl border border-[#1f2025]">
-                <div className="flex items-center space-x-2">
-                  <span className="text-neutral-400 font-medium">Product SKU:</span>
-                  <span className="font-mono font-bold text-white tracking-wider">{product.sku}</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleCopySku}
-                  className="flex items-center space-x-1 text-neutral-400 hover:text-white transition-colors"
-                  title="Copy SKU"
-                >
-                  {isCopiedSku ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span className="text-[11px]">{isCopiedSku ? 'Copied' : 'Copy'}</span>
-                </button>
-              </div>
 
               {/* Price */}
               {product.attributes?.price ? (

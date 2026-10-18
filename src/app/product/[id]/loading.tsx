@@ -1,6 +1,5 @@
-import React from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Sparkles } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { STORE_CONFIG } from '@/config/store.config';
 
 export default function ProductLoading() {
@@ -65,15 +64,7 @@ export default function ProductLoading() {
             </div>
 
             {/* Colors Showcase Skeleton */}
-            <div className="bg-[#0f1015] border border-[#1f2025] rounded-2xl p-4 md:p-6 shadow-md space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Sparkles className="w-4 h-4 text-brand animate-pulse" />
-                  <div className="h-4 w-36 bg-neutral-900 rounded animate-pulse"></div>
-                </div>
-                <div className="h-3 w-14 bg-neutral-900 rounded animate-pulse"></div>
-              </div>
-
+            <div className="bg-[#0f1015] border border-[#1f2025] rounded-2xl p-4 md:p-6 shadow-md">
               <div className="grid grid-cols-4 sm:grid-cols-5 gap-3">
                 {[1, 2, 3, 4, 5].map((i) => (
                   <div key={i} className="flex flex-col items-center space-y-2 p-1.5 rounded-xl border border-[#1f2025] bg-black">
@@ -90,25 +81,16 @@ export default function ProductLoading() {
           <div className="lg:col-span-5 flex flex-col space-y-6">
             
             {/* Info Card Skeleton */}
-            <div className="bg-[#0f1015] border border-[#1f2025] rounded-2xl p-6 shadow-md space-y-5">
+            <div className="bg-[#0f1015] border border-[#1f2025] rounded-2xl p-6 shadow-md space-y-4">
               
-              {/* Badges */}
-              <div className="flex items-center justify-between">
-                <div className="flex gap-2">
-                  <div className="h-6 w-20 bg-neutral-900 rounded-md animate-pulse"></div>
-                  <div className="h-6 w-20 bg-neutral-900 rounded-md animate-pulse"></div>
-                </div>
-                <div className="h-6 w-16 bg-neutral-900 rounded-full animate-pulse"></div>
-              </div>
+              {/* SKU Skeleton */}
+              <div className="h-3.5 w-24 bg-neutral-900 rounded animate-pulse"></div>
 
               {/* Title Skeleton */}
               <div className="space-y-2">
                 <div className="h-7 w-3/4 bg-neutral-900 rounded-lg animate-pulse"></div>
                 <div className="h-7 w-1/2 bg-neutral-900 rounded-lg animate-pulse"></div>
               </div>
-
-              {/* SKU Box */}
-              <div className="h-10 bg-black rounded-xl border border-[#1f2025] animate-pulse"></div>
 
               {/* Price */}
               <div className="pt-3 border-t border-[#1f2025] space-y-1">
