@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { 
   ArrowLeft, 
   MessageCircle, 
@@ -25,6 +26,7 @@ interface ProductDetailClientProps {
 }
 
 export default function ProductDetailClient({ product, relatedProducts = [] }: ProductDetailClientProps) {
+  const router = useRouter();
   const primaryColorName = product.attributes?.color || 'Primary Color';
   const colorVariants: { name: string; imageUrl: string }[] = Array.isArray(product.attributes?.colors) 
     ? product.attributes.colors 
@@ -174,29 +176,37 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
     return allPhotos.map(p => p.url).filter(Boolean);
   }, [allPhotos]);
 
+  const handleBack = () => {
+    setIsNavigatingBack(true);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('app-nav-start'));
+      if (window.history.length > 1) {
+        router.back();
+      } else {
+        router.push('/');
+      }
+    } else {
+      router.push('/');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-black text-white pb-20">
       {/* Top Navbar */}
       <header className="sticky top-0 z-40 bg-black/95 backdrop-blur-md border-b border-[#1f2025] px-4 md:px-8 h-[68px] md:h-[76px] flex items-center justify-between">
         <div className="flex items-center space-x-3 md:space-x-4">
-          <Link 
-            href="/"
-            onClick={() => {
-              setIsNavigatingBack(true);
-              if (typeof window !== 'undefined') {
-                window.dispatchEvent(new Event('app-nav-start'));
-              }
-            }}
-            className="flex items-center space-x-1.5 text-neutral-400 hover:text-white px-2.5 py-1.5 rounded-lg hover:bg-neutral-900 border border-[#1f2025] transition-colors text-xs md:text-sm font-medium"
+          <button 
+            type="button"
+            onClick={handleBack}
+            className="flex items-center space-x-1.5 text-neutral-400 hover:text-white px-2.5 py-1.5 rounded-lg hover:bg-neutral-900 border border-[#1f2025] transition-colors text-xs md:text-sm font-medium cursor-pointer"
           >
             {isNavigatingBack ? (
               <div className="w-3.5 h-3.5 border-2 border-brand border-t-transparent rounded-full animate-spin"></div>
             ) : (
               <ArrowLeft className="w-4 h-4" />
             )}
-            <span className="hidden sm:inline">Back to Catalogue</span>
-            <span className="sm:hidden">Back</span>
-          </Link>
+            <span>Back</span>
+          </button>
           <div className="h-4 w-px bg-[#1f2025]"></div>
           <Link href="/" className="flex items-center space-x-2">
             <img src="/Logo.png" alt={STORE_CONFIG.storeName} className="h-8 md:h-9 w-auto object-contain" />
