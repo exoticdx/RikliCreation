@@ -334,24 +334,26 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
                         onClick={() => handlePhotoSelect(idx)}
                         className={`group flex flex-col items-center rounded-xl p-1.5 border text-left transition-all ${
                           isActive 
-                            ? 'border-brand bg-brand/10 ring-1 ring-brand shadow-lg' 
-                            : 'border-[#1f2025] bg-black hover:border-neutral-600'
+                            ? 'border-white bg-white text-black ring-2 ring-white shadow-lg' 
+                            : 'border-white/20 bg-white/5 text-white/50 hover:border-white/50 hover:text-white/80'
                         }`}
                       >
                         <div className="relative aspect-square w-full rounded-lg overflow-hidden bg-neutral-900 mb-1.5">
                           <img 
                             src={photo.url} 
                             alt={photo.label}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                            className={`w-full h-full object-cover transition-transform duration-300 ${
+                              isActive ? 'scale-105' : 'group-hover:scale-105 opacity-80 group-hover:opacity-100'
+                            }`} 
                           />
                           {isActive && (
-                            <div className="absolute top-1 right-1 bg-brand text-black rounded-full p-0.5">
+                            <div className="absolute top-1 right-1 bg-black text-white rounded-full p-0.5 shadow">
                               <Check className="w-2.5 h-2.5 stroke-[3]" />
                             </div>
                           )}
                         </div>
-                        <span className={`text-[11px] font-medium truncate w-full text-center px-1 ${
-                          isActive ? 'text-brand font-semibold' : 'text-neutral-300 group-hover:text-white'
+                        <span className={`text-[11px] font-medium truncate w-full text-center px-1 transition-colors ${
+                          isActive ? 'text-black font-bold' : 'text-white/50 group-hover:text-white'
                         }`}>
                           {photo.label}
                         </span>
@@ -396,10 +398,10 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
               {/* Color Selection Swatches */}
               <div className="pt-3 border-t border-[#1f2025] space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs md:text-sm font-medium text-neutral-300">
+                  <label className="text-xs md:text-sm font-medium text-white/70">
                     Selected Color: <span className="text-white font-bold">{selectedColor}</span>
                   </label>
-                  <span className="text-[11px] text-neutral-500">
+                  <span className="text-[11px] text-white/50">
                     {1 + colorVariants.length} Available
                   </span>
                 </div>
@@ -411,11 +413,11 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
                     onClick={() => handleColorSelect(primaryColorName)}
                     className={`text-xs px-3.5 py-1.5 rounded-full border transition-all flex items-center space-x-1.5 ${
                       selectedColor === primaryColorName
-                        ? 'border-brand bg-brand/10 text-brand font-semibold shadow-sm'
-                        : 'border-[#1f2025] bg-black text-neutral-400 hover:border-neutral-600'
+                        ? 'bg-white text-black border-white font-bold shadow-md'
+                        : 'border-white/20 bg-white/5 text-white/50 hover:border-white/40 hover:text-white/80'
                     }`}
                   >
-                    <span className="w-2 h-2 rounded-full bg-brand"></span>
+                    <span className={`w-2 h-2 rounded-full ${selectedColor === primaryColorName ? 'bg-black' : 'bg-white/50'}`}></span>
                     <span>{primaryColorName}</span>
                   </button>
 
@@ -427,11 +429,11 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
                       onClick={() => handleColorSelect(c.name)}
                       className={`text-xs px-3.5 py-1.5 rounded-full border transition-all flex items-center space-x-1.5 ${
                         selectedColor === c.name
-                          ? 'border-brand bg-brand/10 text-brand font-semibold shadow-sm'
-                          : 'border-[#1f2025] bg-black text-neutral-400 hover:border-neutral-600'
+                          ? 'bg-white text-black border-white font-bold shadow-md'
+                          : 'border-white/20 bg-white/5 text-white/50 hover:border-white/40 hover:text-white/80'
                       }`}
                     >
-                      <span className="w-2 h-2 rounded-full bg-neutral-400"></span>
+                      <span className={`w-2 h-2 rounded-full ${selectedColor === c.name ? 'bg-black' : 'bg-white/50'}`}></span>
                       <span>{c.name}</span>
                     </button>
                   ))}

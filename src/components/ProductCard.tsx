@@ -135,8 +135,8 @@ export default function ProductCard({ product, onInquire, onAdd, onImageClick, i
               }}
               className={`text-[10px] md:text-xs px-2 py-1 rounded-full border transition-colors ${
                 activeColorIdx === null 
-                  ? 'border-brand bg-brand/5 text-brand font-medium' 
-                  : 'border-[#2a2b30] text-neutral-400 hover:border-[#3a3b40]'
+                  ? 'bg-white text-black border-white font-medium shadow-sm' 
+                  : 'border-white/20 bg-white/5 text-white/50 hover:border-white/40 hover:text-white/80'
               }`}
             >
               {product.attributes?.color || 'Default'}
@@ -152,8 +152,8 @@ export default function ProductCard({ product, onInquire, onAdd, onImageClick, i
                 }}
                 className={`text-[10px] md:text-xs px-2 py-1 rounded-full border transition-colors ${
                   activeColorIdx === idx 
-                    ? 'border-brand bg-brand/5 text-brand font-medium' 
-                    : 'border-[#2a2b30] text-neutral-400 hover:border-[#3a3b40]'
+                    ? 'bg-white text-black border-white font-medium shadow-sm' 
+                    : 'border-white/20 bg-white/5 text-white/50 hover:border-white/40 hover:text-white/80'
                 }`}
               >
                 {c.name}
