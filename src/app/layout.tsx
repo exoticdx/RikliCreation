@@ -17,7 +17,9 @@ export const metadata: Metadata = {
   description: "Browse our exclusive collection of premium products at Rikli Creation.",
 };
 
+import { Suspense } from "react";
 import ClientToaster from "@/components/ClientToaster";
+import NavigationProgressBar from "@/components/NavigationProgressBar";
 import { STORE_CONFIG } from "@/config/store.config";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -33,6 +35,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       } as React.CSSProperties}
     >
       <body className="min-h-full flex flex-col">
+        <Suspense fallback={null}>
+          <NavigationProgressBar />
+        </Suspense>
         <ClientToaster />
         {children}
       </body>

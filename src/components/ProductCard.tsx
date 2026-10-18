@@ -17,6 +17,7 @@ interface ProductCardProps {
 export default function ProductCard({ product, onInquire, onAdd, onImageClick, isInCart }: ProductCardProps) {
   const router = useRouter();
   const [activeColorIdx, setActiveColorIdx] = useState<number | null>(null);
+  const [isOpening, setIsOpening] = useState(false);
 
   const colors = product.attributes?.colors || [];
   const displayImage = activeColorIdx !== null && colors[activeColorIdx] ? colors[activeColorIdx].imageUrl : product.imageUrl;
@@ -27,19 +28,37 @@ export default function ProductCard({ product, onInquire, onAdd, onImageClick, i
     if (target.closest('button') || target.closest('a')) {
       return;
     }
+    setIsOpening(true);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('app-nav-start'));
+    }
     router.push(`/product/${product.id}`);
   };
 
   return (
     <div 
       onClick={handleCardClick}
-      className="bg-black rounded-xl overflow-hidden shadow-sm border border-[#1f2025] hover:border-neutral-700 md:hover:shadow-md transition-all group flex flex-col h-full print:break-inside-avoid cursor-pointer"
+      className="relative bg-black rounded-xl overflow-hidden shadow-sm border border-[#1f2025] hover:border-neutral-700 md:hover:shadow-md transition-all group flex flex-col h-full print:break-inside-avoid cursor-pointer"
     >
+      {/* Immediate Loading Overlay on Click */}
+      {isOpening && (
+        <div className="absolute inset-0 z-30 bg-black/80 backdrop-blur-[2px] flex flex-col items-center justify-center space-y-2.5 animate-in fade-in duration-150">
+          <div className="w-8 h-8 border-2 border-brand border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-[11px] font-medium text-white tracking-widest uppercase">Opening...</span>
+        </div>
+      )}
+
       {/* Product Image */}
       <Link 
         href={`/product/${product.id}`}
         className="relative aspect-square bg-neutral-900 w-full overflow-hidden block"
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          e.stopPropagation();
+          setIsOpening(true);
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new Event('app-nav-start'));
+          }
+        }}
       >
         {displayImage ? (
           <img 
@@ -69,7 +88,13 @@ export default function ProductCard({ product, onInquire, onAdd, onImageClick, i
         
         <Link 
           href={`/product/${product.id}`}
-          onClick={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsOpening(true);
+            if (typeof window !== 'undefined') {
+              window.dispatchEvent(new Event('app-nav-start'));
+            }
+          }}
           className="hover:text-brand transition-colors block"
         >
           <h3 className="font-medium text-white mb-1 leading-snug text-sm md:text-base line-clamp-1 md:line-clamp-2">

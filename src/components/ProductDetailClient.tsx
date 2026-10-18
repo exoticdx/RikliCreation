@@ -81,6 +81,7 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [isZoomOpen, setIsZoomOpen] = useState(false);
   const [isCopiedSku, setIsCopiedSku] = useState(false);
+  const [isNavigatingBack, setIsNavigatingBack] = useState(false);
 
   // Available Sizes from attributes if any
   const availableSizes = useMemo(() => {
@@ -184,9 +185,19 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
         <div className="flex items-center space-x-3 md:space-x-4">
           <Link 
             href="/"
+            onClick={() => {
+              setIsNavigatingBack(true);
+              if (typeof window !== 'undefined') {
+                window.dispatchEvent(new Event('app-nav-start'));
+              }
+            }}
             className="flex items-center space-x-1.5 text-neutral-400 hover:text-white px-2.5 py-1.5 rounded-lg hover:bg-neutral-900 border border-[#1f2025] transition-colors text-xs md:text-sm font-medium"
           >
-            <ArrowLeft className="w-4 h-4" />
+            {isNavigatingBack ? (
+              <div className="w-3.5 h-3.5 border-2 border-brand border-t-transparent rounded-full animate-spin"></div>
+            ) : (
+              <ArrowLeft className="w-4 h-4" />
+            )}
             <span className="hidden sm:inline">Back to Catalogue</span>
             <span className="sm:hidden">Back</span>
           </Link>
