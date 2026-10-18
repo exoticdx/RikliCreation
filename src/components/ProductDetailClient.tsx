@@ -219,7 +219,7 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-brand hover:bg-brand-dark text-button-text px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-medium transition-colors flex items-center space-x-1.5 shadow-sm"
+            className="bg-[#25D366] hover:bg-[#20ba5a] text-white px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition-colors flex items-center space-x-1.5 shadow-sm"
           >
             <MessageCircle className="w-4 h-4" />
             <span>Inquire</span>
@@ -473,7 +473,7 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
                   href={whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full flex items-center justify-center space-x-2.5 bg-brand hover:bg-brand-dark text-button-text py-3.5 px-6 rounded-xl font-medium text-sm md:text-base transition-transform active:scale-[0.98] shadow-lg shadow-brand/10"
+                  className="w-full flex items-center justify-center space-x-2.5 bg-[#25D366] hover:bg-[#20ba5a] text-white py-3.5 px-6 rounded-xl font-semibold text-sm md:text-base transition-transform active:scale-[0.98] shadow-lg shadow-[#25D366]/20"
                 >
                   <MessageCircle className="w-5 h-5 shrink-0" />
                   <span>Inquire on WhatsApp</span>

@@ -70,7 +70,7 @@ export default function InquiryModal({ product, onClose }: InquiryModalProps) {
               value={formData.quantity} onChange={e => setFormData({...formData, quantity: parseInt(e.target.value) || 1})} />
           </div>
           
-          <button type="submit" className="w-full flex items-center justify-center space-x-2 bg-brand hover:bg-brand-dark text-white px-4 py-3 rounded-xl font-medium transition-colors mt-6">
+          <button type="submit" className="w-full flex items-center justify-center space-x-2 bg-[#25D366] hover:bg-[#20ba5a] text-white px-4 py-3 rounded-xl font-semibold transition-colors mt-6 shadow-sm">
             <Send className="w-4 h-4" />
             <span>Submit to WhatsApp</span>
           </button>
