@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   ArrowLeft, 
@@ -82,6 +82,12 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
   const [isZoomOpen, setIsZoomOpen] = useState(false);
   const [isCopiedSku, setIsCopiedSku] = useState(false);
   const [isNavigatingBack, setIsNavigatingBack] = useState(false);
+
+  useEffect(() => {
+    if (!isNavigatingBack) return;
+    const t = setTimeout(() => setIsNavigatingBack(false), 2000);
+    return () => clearTimeout(t);
+  }, [isNavigatingBack]);
 
   // Available Sizes from attributes if any
   const availableSizes = useMemo(() => {

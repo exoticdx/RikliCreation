@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Product } from './CatalogueClient';
@@ -18,6 +18,20 @@ export default function ProductCard({ product, onInquire, onAdd, onImageClick, i
   const router = useRouter();
   const [activeColorIdx, setActiveColorIdx] = useState<number | null>(null);
   const [isOpening, setIsOpening] = useState(false);
+
+  // Auto reset isOpening if navigation finishes or user comes back
+  useEffect(() => {
+    if (!isOpening) return;
+    const t = setTimeout(() => setIsOpening(false), 2000);
+    const reset = () => setIsOpening(false);
+    window.addEventListener('pageshow', reset);
+    window.addEventListener('popstate', reset);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener('pageshow', reset);
+      window.removeEventListener('popstate', reset);
+    };
+  }, [isOpening]);
 
   const colors = product.attributes?.colors || [];
   const displayImage = activeColorIdx !== null && colors[activeColorIdx] ? colors[activeColorIdx].imageUrl : product.imageUrl;
