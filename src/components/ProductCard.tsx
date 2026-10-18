@@ -36,6 +36,11 @@ export default function ProductCard({ product, onInquire, onAdd, onImageClick, i
   const colors = product.attributes?.colors || [];
   const displayImage = activeColorIdx !== null && colors[activeColorIdx] ? colors[activeColorIdx].imageUrl : product.imageUrl;
 
+  // Preserve current query parameters (e.g. ?type=Cord+Set&cat=...) or fallback to product's parent category
+  const search = typeof window !== 'undefined' ? window.location.search : '';
+  const query = search || (product.attributes?.parent_category ? `?type=${encodeURIComponent(product.attributes.parent_category)}` : '');
+  const productHref = `/product/${product.id}${query}`;
+
   const handleCardClick = (e: React.MouseEvent) => {
     // If the click is on an interactive element (button, link, input), let it handle its own event
     const target = e.target as HTMLElement;
@@ -44,9 +49,10 @@ export default function ProductCard({ product, onInquire, onAdd, onImageClick, i
     }
     setIsOpening(true);
     if (typeof window !== 'undefined') {
+      sessionStorage.setItem('catalogueScrollPos', window.scrollY.toString());
       window.dispatchEvent(new Event('app-nav-start'));
     }
-    router.push(`/product/${product.id}`);
+    router.push(productHref);
   };
 
   return (
@@ -64,12 +70,13 @@ export default function ProductCard({ product, onInquire, onAdd, onImageClick, i
 
       {/* Product Image */}
       <Link 
-        href={`/product/${product.id}`}
+        href={productHref}
         className="relative aspect-square bg-neutral-900 w-full overflow-hidden block"
         onClick={(e) => {
           e.stopPropagation();
           setIsOpening(true);
           if (typeof window !== 'undefined') {
+            sessionStorage.setItem('catalogueScrollPos', window.scrollY.toString());
             window.dispatchEvent(new Event('app-nav-start'));
           }
         }}
@@ -101,11 +108,12 @@ export default function ProductCard({ product, onInquire, onAdd, onImageClick, i
         </div>
         
         <Link 
-          href={`/product/${product.id}`}
+          href={productHref}
           onClick={(e) => {
             e.stopPropagation();
             setIsOpening(true);
             if (typeof window !== 'undefined') {
+              sessionStorage.setItem('catalogueScrollPos', window.scrollY.toString());
               window.dispatchEvent(new Event('app-nav-start'));
             }
           }}

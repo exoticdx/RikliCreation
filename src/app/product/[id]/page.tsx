@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import ProductDetailClient from '@/components/ProductDetailClient';
@@ -70,9 +71,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
   }));
 
   return (
-    <ProductDetailClient 
-      product={product} 
-      relatedProducts={relatedProducts} 
-    />
+    <Suspense fallback={<div className="min-h-screen bg-black" />}>
+      <ProductDetailClient 
+        product={product} 
+        relatedProducts={relatedProducts} 
+      />
+    </Suspense>
   );
 }

@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { supabase } from '@/lib/supabase';
 import CatalogueClient from '@/components/CatalogueClient';
 
@@ -13,7 +14,9 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen bg-black text-brand font-sans">
-      <CatalogueClient initialCategories={categories || []} initialProducts={products} fieldOptions={fieldOptions || []} />
+      <Suspense fallback={<div className="min-h-screen bg-black" />}>
+        <CatalogueClient initialCategories={categories || []} initialProducts={products} fieldOptions={fieldOptions || []} />
+      </Suspense>
     </main>
   );
 }

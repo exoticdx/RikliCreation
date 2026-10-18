@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { 
   ArrowLeft, 
   MessageCircle, 
@@ -27,6 +27,7 @@ interface ProductDetailClientProps {
 
 export default function ProductDetailClient({ product, relatedProducts = [] }: ProductDetailClientProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const primaryColorName = product.attributes?.color || 'Primary Color';
   const colorVariants: { name: string; imageUrl: string }[] = Array.isArray(product.attributes?.colors) 
     ? product.attributes.colors 
@@ -180,10 +181,20 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
     setIsNavigatingBack(true);
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new Event('app-nav-start'));
-      if (window.history.length > 1) {
+
+      const typeParam = searchParams.get('type');
+      const catParam = searchParams.get('cat');
+      const parentCat = typeParam || (product.attributes?.parent_category as string) || sessionStorage.getItem('activeParentCategory') || '';
+
+      const params = new URLSearchParams();
+      if (parentCat) params.set('type', parentCat);
+      if (catParam) params.set('cat', catParam);
+      const fallbackUrl = params.toString() ? `/?${params.toString()}` : '/';
+
+      if (window.history.length > 1 && (document.referrer.includes(window.location.host) || sessionStorage.getItem('activeParentCategory') || typeParam)) {
         router.back();
       } else {
-        router.push('/');
+        router.push(fallbackUrl);
       }
     } else {
       router.push('/');
@@ -208,7 +219,17 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
             <span>Back</span>
           </button>
           <div className="h-4 w-px bg-[#1f2025]"></div>
-          <Link href="/" className="flex items-center space-x-2">
+          <Link 
+            href="/" 
+            onClick={() => {
+              if (typeof window !== 'undefined') {
+                sessionStorage.removeItem('activeParentCategory');
+                sessionStorage.removeItem('selectedCategory');
+                sessionStorage.removeItem('catalogueScrollPos');
+              }
+            }}
+            className="flex items-center space-x-2"
+          >
             <img src="/Logo.png" alt={STORE_CONFIG.storeName} className="h-8 md:h-9 w-auto object-contain" />
             <span className="font-serif font-bold text-base md:text-lg text-white tracking-tight hidden md:inline">
               {STORE_CONFIG.storeName}

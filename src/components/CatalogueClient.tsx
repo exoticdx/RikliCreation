@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { ShoppingCart, Search, ArrowUpDown, SlidersHorizontal, X, FileDown } from 'lucide-react';
 import ProductCard from './ProductCard';
 import InquiryModal from './InquiryModal';
@@ -42,15 +43,116 @@ export default function CatalogueClient({
   initialProducts: Product[],
   fieldOptions?: any[]
 }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Read URL query params
+  const urlType = searchParams.get('type');
+  const urlCat = searchParams.get('cat');
+
   const [categories] = useState<Category[]>(initialCategories);
   const [products] = useState<Product[]>(initialProducts);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [activeParentCategory, setActiveParentCategory] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>(() => urlCat || 'all');
+  const [activeParentCategory, setActiveParentCategory] = useState<string | null>(() => urlType || null);
   const [activeFilters, setActiveFilters] = useState<Record<string, any>>({});
   const [inquiryProduct, setInquiryProduct] = useState<Product | null>(null);
   const [zoomedProduct, setZoomedProduct] = useState<Product | null>(null);
+
+  // Synchronize state with URL search params and sessionStorage
+  useEffect(() => {
+    const currentType = searchParams.get('type');
+    const currentCat = searchParams.get('cat');
+
+    if (currentType) {
+      setActiveParentCategory(currentType);
+      sessionStorage.setItem('activeParentCategory', currentType);
+    } else {
+      const savedType = typeof window !== 'undefined' ? sessionStorage.getItem('activeParentCategory') : null;
+      if (savedType) {
+        setActiveParentCategory(savedType);
+        const params = new URLSearchParams(window.location.search);
+        params.set('type', savedType);
+        const savedCat = sessionStorage.getItem('selectedCategory');
+        if (savedCat && savedCat !== 'all') {
+          params.set('cat', savedCat);
+        }
+        window.history.replaceState(null, '', `/?${params.toString()}`);
+      } else {
+        setActiveParentCategory(null);
+      }
+    }
+
+    if (currentCat) {
+      setSelectedCategory(currentCat);
+      sessionStorage.setItem('selectedCategory', currentCat);
+    } else {
+      const savedCat = typeof window !== 'undefined' ? sessionStorage.getItem('selectedCategory') : null;
+      if (savedCat && (currentType || (typeof window !== 'undefined' && sessionStorage.getItem('activeParentCategory')))) {
+        setSelectedCategory(savedCat);
+      } else {
+        setSelectedCategory('all');
+      }
+    }
+  }, [searchParams]);
+
+  // Restore scroll position after returning from a product detail page
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedScroll = sessionStorage.getItem('catalogueScrollPos');
+      if (savedScroll) {
+        const y = parseInt(savedScroll, 10);
+        if (!isNaN(y) && y > 0) {
+          const timer = setTimeout(() => {
+            window.scrollTo({ top: y, behavior: 'instant' });
+            sessionStorage.removeItem('catalogueScrollPos');
+          }, 80);
+          return () => clearTimeout(timer);
+        }
+      }
+    }
+  }, [activeParentCategory, selectedCategory]);
+
+  const handleSelectParentCategory = (categoryName: string) => {
+    setActiveParentCategory(categoryName);
+    setSelectedCategory('all');
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('activeParentCategory', categoryName);
+      sessionStorage.setItem('selectedCategory', 'all');
+    }
+    const params = new URLSearchParams();
+    params.set('type', categoryName);
+    router.push(`/?${params.toString()}`, { scroll: false });
+  };
+
+  const handleBackHome = () => {
+    setActiveParentCategory(null);
+    setSelectedCategory('all');
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('activeParentCategory');
+      sessionStorage.removeItem('selectedCategory');
+      sessionStorage.removeItem('catalogueScrollPos');
+    }
+    router.push('/', { scroll: false });
+  };
+
+  const handleSelectSubCategory = (catId: string) => {
+    setSelectedCategory(catId);
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('selectedCategory', catId);
+    }
+    const params = new URLSearchParams(window.location.search);
+    if (activeParentCategory) {
+      params.set('type', activeParentCategory);
+    }
+    if (catId && catId !== 'all') {
+      params.set('cat', catId);
+    } else {
+      params.delete('cat');
+    }
+    router.replace(`/?${params.toString()}`, { scroll: false });
+  };
   
   // Export PDF State
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
@@ -112,7 +214,15 @@ export default function CatalogueClient({
   
   const clearAllFilters = () => {
     setSelectedCategory('all');
-    setActiveFilters({}); setActiveParentCategory(null); setActiveParentCategory(null);
+    setActiveFilters({});
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('selectedCategory');
+    }
+    const params = new URLSearchParams();
+    if (activeParentCategory) {
+      params.set('type', activeParentCategory);
+    }
+    router.replace(`/?${params.toString()}`, { scroll: false });
   };
 
   const handleAddToCartClick = (product: Product) => {
@@ -180,8 +290,11 @@ export default function CatalogueClient({
     <div className="pb-24 print:pb-0">
       {/* Navbar */}
       <header className="sticky top-0 z-40 bg-black border-b border-[#1f2025] shadow-sm px-4 md:px-8 flex items-center justify-between h-[72px] md:h-[80px] print:hidden">
-        <div className="flex items-center space-x-3 md:space-x-4">
-          <img src="/Logo.png" alt="RC Imitation Jewellery Logo" className="h-10 md:h-12 w-auto object-contain" />
+        <div 
+          onClick={handleBackHome}
+          className="flex items-center space-x-3 md:space-x-4 cursor-pointer group"
+        >
+          <img src="/Logo.png" alt="RC Imitation Jewellery Logo" className="h-10 md:h-12 w-auto object-contain transition-transform group-hover:scale-105" />
           <h1 className="text-lg md:text-xl font-bold text-nav-heading tracking-tight font-serif leading-tight">{STORE_CONFIG.storeName}</h1>
         </div>
         <button 
@@ -213,16 +326,13 @@ export default function CatalogueClient({
       {activeParentCategory && (
         <div className="print:hidden sticky top-[72px] md:top-[80px] z-30 bg-black/95 backdrop-blur-sm border-b border-[#1f2025] px-4 md:px-8 py-3 overflow-x-auto whitespace-nowrap hide-scrollbar flex space-x-2 md:space-x-4 shadow-sm">
           <button
-            onClick={() => {
-              setActiveParentCategory(null);
-              setSelectedCategory('all');
-            }}
+            onClick={handleBackHome}
             className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors bg-black border border-brand/20 text-brand/80 hover:bg-brand/5 NavButtonColour`}
           >
             ← Back Home
           </button>
           <button
-            onClick={() => setSelectedCategory('all')}
+            onClick={() => handleSelectSubCategory('all')}
             className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${selectedCategory === 'all' ? 'bg-[#fdd0a0] text-black' : 'bg-black border border-brand/20 text-white/80 hover:bg-white'}`}
           >
             All {activeParentCategory} ({initialProducts.filter(p => p.attributes?.parent_category === activeParentCategory).length})
@@ -233,7 +343,7 @@ export default function CatalogueClient({
             return (
               <button
                 key={cat.id}
-                onClick={() => setSelectedCategory(cat.id)}
+                onClick={() => handleSelectSubCategory(cat.id)}
                 className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${selectedCategory === cat.id ? 'bg-[#fdd0a0] text-black' : 'bg-black border border-brand/20 text-white/80 hover:bg-white'}`}
               >
                 {cat.name} ({count})
@@ -310,10 +420,7 @@ export default function CatalogueClient({
               return (
                 <div 
                   key={idx} 
-                  onClick={() => {
-                    setActiveParentCategory(card.name);
-                    setSelectedCategory('all');
-                  }}
+                  onClick={() => handleSelectParentCategory(card.name)}
                   className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-lg cursor-pointer group"
                 >
                   <img src={card.image} alt={card.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
