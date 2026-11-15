@@ -65,10 +65,15 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   const { data: relatedData } = await relatedQuery;
 
-  const relatedProducts = (relatedData || []).map(p => ({
-    ...p,
-    category: Array.isArray(p.category) ? p.category[0] : p.category
-  }));
+  const relatedProducts = (relatedData || [])
+    .map(p => ({
+      ...p,
+      category: Array.isArray(p.category) ? p.category[0] : p.category
+    }))
+    .filter(p => {
+      const inStock = p.attributes?.in_stock ?? p.attributes?.inStock;
+      return inStock !== false && inStock !== 'false' && inStock !== 0;
+    });
 
   return (
     <Suspense fallback={<div className="min-h-screen bg-black" />}>

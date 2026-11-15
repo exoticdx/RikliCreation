@@ -47,7 +47,7 @@ export default function ProductLoading() {
           <div className="lg:col-span-7 flex flex-col space-y-6">
             
             {/* Main Image Box */}
-            <div className="relative aspect-[3/4] md:aspect-square w-full bg-[#0f1015] rounded-2xl overflow-hidden border border-[#1f2025] shadow-xl flex flex-col items-center justify-center">
+            <div className="relative aspect-square w-full bg-[#0f1015] rounded-2xl overflow-hidden border border-[#1f2025] shadow-xl flex flex-col items-center justify-center">
               <div className="flex flex-col items-center space-y-3">
                 <div className="w-12 h-12 border-3 border-brand border-t-transparent rounded-full animate-spin"></div>
                 <div className="text-xs font-medium text-neutral-400 tracking-wider uppercase animate-pulse">

@@ -1,14 +1,13 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
+import useEmblaCarousel from 'embla-carousel-react';
 import { 
   ArrowLeft, 
   MessageCircle, 
   Share2, 
-  Check, 
-  ZoomIn, 
   ChevronLeft, 
   ChevronRight, 
   ShieldCheck,
@@ -28,58 +27,38 @@ interface ProductDetailClientProps {
 export default function ProductDetailClient({ product, relatedProducts = [] }: ProductDetailClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const primaryColorName = product.attributes?.color || 'Primary Color';
-  const colorVariants: { name: string; imageUrl: string }[] = Array.isArray(product.attributes?.colors) 
-    ? product.attributes.colors 
-    : [];
+
   const galleryImages: string[] = Array.isArray(product.attributes?.gallery) 
     ? product.attributes.gallery 
     : [];
 
-  // Build the complete list of photos, associating each with its color name
+  // Build the complete list of photos
   const allPhotos = useMemo(() => {
-    const list: { id: string; label: string; url: string; colorName?: string; isColor: boolean }[] = [];
+    const list: { id: string; label: string; url: string }[] = [];
 
     if (product.imageUrl) {
       list.push({
         id: 'primary',
-        label: primaryColorName,
-        url: product.imageUrl,
-        colorName: primaryColorName,
-        isColor: true
+        label: 'Main Photo',
+        url: product.imageUrl
       });
     }
-
-    colorVariants.forEach((c, idx) => {
-      if (c.imageUrl) {
-        list.push({
-          id: `color-${idx}`,
-          label: c.name || `Color ${idx + 1}`,
-          url: c.imageUrl,
-          colorName: c.name || `Color ${idx + 1}`,
-          isColor: true
-        });
-      }
-    });
 
     galleryImages.forEach((url, idx) => {
       if (url && !list.some(p => p.url === url)) {
         list.push({
           id: `gallery-${idx}`,
-          label: `Photo ${idx + 1}`,
-          url,
-          isColor: false
+          label: `Photo ${idx + 2}`,
+          url
         });
       }
     });
 
     return list;
-  }, [product.imageUrl, primaryColorName, colorVariants, galleryImages]);
+  }, [product.imageUrl, galleryImages]);
 
   // State
   const [activePhotoIndex, setActivePhotoIndex] = useState(0);
-  const [selectedColor, setSelectedColor] = useState<string>(primaryColorName);
-  const [selectedSize, setSelectedSize] = useState<string>('');
   const [isZoomOpen, setIsZoomOpen] = useState(false);
   const [isNavigatingBack, setIsNavigatingBack] = useState(false);
 
@@ -89,9 +68,9 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
     return () => clearTimeout(t);
   }, [isNavigatingBack]);
 
-  // Available Sizes from attributes if any
+  // Available Sizes from attributes if any ("if empty it means there is no size")
   const availableSizes = useMemo(() => {
-    const sizeVal = product.attributes?.Size || product.attributes?.size;
+    const sizeVal = product.attributes?.sizes || product.attributes?.Size || product.attributes?.size;
     if (!sizeVal) return [];
     if (Array.isArray(sizeVal)) {
       return sizeVal.map(s => (typeof s === 'object' && s !== null ? s.size : String(s)));
@@ -99,37 +78,77 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
     if (typeof sizeVal === 'string') {
       return sizeVal.split(',').map(s => s.trim()).filter(Boolean);
     }
-    return [String(sizeVal)];
+    return [];
   }, [product.attributes]);
 
-  // Handle color selection
-  const handleColorSelect = (colorName: string) => {
-    setSelectedColor(colorName);
-    const photoIdx = allPhotos.findIndex(p => p.colorName?.toLowerCase() === colorName.toLowerCase());
-    if (photoIdx !== -1) {
-      setActivePhotoIndex(photoIdx);
-    }
-  };
+  // Materials Detail if present
+  const materialsDetail = useMemo(() => {
+    const val = 
+      product.attributes?.materialsDetail || 
+      product.attributes?.material_details || 
+      product.attributes?.['Materials Detail'] || 
+      product.attributes?.['Matierias Detail'] || 
+      (product as any).materialsDetail || 
+      '';
+    return typeof val === 'string' ? val.trim() : '';
+  }, [product]);
 
-  // Handle thumbnail click
-  const handlePhotoSelect = (idx: number) => {
-    setActivePhotoIndex(idx);
-    const photo = allPhotos[idx];
-    if (photo && photo.colorName) {
-      setSelectedColor(photo.colorName);
-    }
-  };
+  // Embla Carousel for smooth slide animations between product photos
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    loop: false,
+    duration: 25,
+  });
+
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setActivePhotoIndex(emblaApi.selectedScrollSnap());
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    onSelect();
+    emblaApi.on('select', onSelect);
+    emblaApi.on('reInit', onSelect);
+    return () => {
+      emblaApi.off('select', onSelect);
+      emblaApi.off('reInit', onSelect);
+    };
+  }, [emblaApi, onSelect]);
+
+  useEffect(() => {
+    if (emblaApi) emblaApi.reInit();
+  }, [emblaApi, allPhotos]);
 
   const handleNextPhoto = () => {
-    if (allPhotos.length <= 1) return;
-    const nextIdx = (activePhotoIndex + 1) % allPhotos.length;
-    handlePhotoSelect(nextIdx);
+    if (emblaApi) {
+      if (emblaApi.canScrollNext()) {
+        emblaApi.scrollNext();
+      } else {
+        emblaApi.scrollTo(0);
+      }
+    } else {
+      setActivePhotoIndex((prev) => (prev + 1) % allPhotos.length);
+    }
   };
 
   const handlePrevPhoto = () => {
-    if (allPhotos.length <= 1) return;
-    const prevIdx = (activePhotoIndex - 1 + allPhotos.length) % allPhotos.length;
-    handlePhotoSelect(prevIdx);
+    if (emblaApi) {
+      if (emblaApi.canScrollPrev()) {
+        emblaApi.scrollPrev();
+      } else {
+        emblaApi.scrollTo(allPhotos.length - 1);
+      }
+    } else {
+      setActivePhotoIndex((prev) => (prev - 1 + allPhotos.length) % allPhotos.length);
+    }
+  };
+
+  const handlePhotoSelect = (index: number) => {
+    if (emblaApi) {
+      emblaApi.scrollTo(index);
+    } else {
+      setActivePhotoIndex(index);
+    }
   };
 
   const handleShare = () => {
@@ -157,10 +176,9 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
       `I am interested in this product:`,
       `• *Product:* ${product.name}`,
       `• *SKU:* ${product.sku}`,
-      `• *Color:* ${selectedColor || 'Default'}`,
     ];
-    if (selectedSize) {
-      lines.push(`• *Size:* ${selectedSize}`);
+    if (availableSizes.length > 0) {
+      lines.push(`• *Available Sizes:* ${availableSizes.join(', ')}`);
     }
     if (product.attributes?.price) {
       lines.push(`• *Price:* ₹${Number(product.attributes.price).toLocaleString('en-IN')}`);
@@ -170,7 +188,7 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
     }
     lines.push(`Please share details and availability.`);
     return `https://wa.me/${STORE_CONFIG.whatsappNumber}?text=${encodeURIComponent(lines.join('\n'))}`;
-  }, [product, selectedColor, selectedSize]);
+  }, [product, availableSizes]);
 
   // Collect all image URLs for zoom modal
   const zoomImages = useMemo(() => {
@@ -182,16 +200,12 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new Event('app-nav-start'));
 
-      const typeParam = searchParams.get('type');
-      const catParam = searchParams.get('cat');
-      const parentCat = typeParam || (product.attributes?.parent_category as string) || sessionStorage.getItem('activeParentCategory') || '';
-
+      const catParam = searchParams.get('cat') || product.categoryId || '';
       const params = new URLSearchParams();
-      if (parentCat) params.set('type', parentCat);
       if (catParam) params.set('cat', catParam);
       const fallbackUrl = params.toString() ? `/?${params.toString()}` : '/';
 
-      if (window.history.length > 1 && (document.referrer.includes(window.location.host) || sessionStorage.getItem('activeParentCategory') || typeParam)) {
+      if (window.history.length > 1 && document.referrer.includes(window.location.host)) {
         router.back();
       } else {
         router.push(fallbackUrl);
@@ -223,16 +237,23 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
             href="/" 
             onClick={() => {
               if (typeof window !== 'undefined') {
-                sessionStorage.removeItem('activeParentCategory');
                 sessionStorage.removeItem('selectedCategory');
                 sessionStorage.removeItem('catalogueScrollPos');
               }
             }}
-            className="flex items-center space-x-2"
+            className="flex items-end space-x-2 pb-1"
           >
-            <img src="/Logo.png" alt={STORE_CONFIG.storeName} className="h-8 md:h-9 w-auto object-contain" />
-            <span className="font-serif font-bold text-base md:text-lg text-white tracking-tight hidden md:inline">
-              {STORE_CONFIG.storeName}
+            <img src="/Logo.png" alt="RC Logo" className="h-8 md:h-10 w-auto object-contain shrink-0" />
+            <span 
+              className="font-serif font-bold text-base md:text-lg tracking-wide hidden sm:inline leading-none pb-0.5"
+              style={{
+                backgroundImage: 'linear-gradient(135deg, #fff5c0 0%, #e8c566 22%, #fff9d6 44%, #aa771c 68%, #fbf3b9 88%, #c59b27 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.95)) drop-shadow(0 0 8px rgba(218,165,32,0.3))',
+              }}
+            >
+              Imitation Jewellery
             </span>
           </Link>
         </div>
@@ -264,15 +285,14 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
         <div className="flex items-center space-x-2 text-xs md:text-sm text-neutral-400 mb-6 flex-wrap">
           <Link href="/" className="hover:text-white transition-colors">Home</Link>
           <span>/</span>
-          {product.attributes?.parent_category && (
-            <>
-              <span className="text-neutral-400">{product.attributes.parent_category}</span>
-              <span>/</span>
-            </>
-          )}
           {product.category?.name && (
             <>
-              <span className="text-neutral-400">{product.category.name}</span>
+              <Link 
+                href={`/?cat=${product.categoryId}`} 
+                className="hover:text-white text-neutral-400 transition-colors"
+              >
+                {product.category.name}
+              </Link>
               <span>/</span>
             </>
           )}
@@ -282,42 +302,41 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
         {/* Product Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
           
-          {/* LEFT COLUMN: Main Photo & All Color Photos */}
+          {/* LEFT COLUMN: Main Photo & Gallery */}
           <div className="lg:col-span-7 flex flex-col space-y-6">
             
             {/* Main Photo Viewport */}
-            <div className="relative aspect-[3/4] md:aspect-square w-full bg-[#0f1015] rounded-2xl overflow-hidden border border-[#1f2025] group shadow-xl">
-              {activePhoto?.url ? (
-                <img 
-                  src={activePhoto.url} 
-                  alt={`${product.name} - ${activePhoto.label}`}
-                  className="w-full h-full object-cover transition-transform duration-500 cursor-zoom-in"
-                  onClick={() => setIsZoomOpen(true)}
-                />
+            <div className="relative aspect-square w-full bg-[#0f1015] rounded-2xl overflow-hidden border border-[#1f2025] group shadow-xl">
+              {allPhotos.length > 0 ? (
+                <div className="overflow-hidden w-full h-full" ref={emblaRef}>
+                  <div className="flex touch-pan-y h-full">
+                    {allPhotos.map((photo, idx) => (
+                      <div key={photo.id || idx} className="flex-[0_0_100%] min-w-0 h-full relative">
+                        <img 
+                          src={photo.url} 
+                          alt={`${product.name} - ${photo.label}`}
+                          className="w-full h-full object-cover cursor-zoom-in select-none"
+                          onClick={() => setIsZoomOpen(true)}
+                          draggable={false}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-neutral-500 text-sm">
                   No Image Available
                 </div>
               )}
 
-              {/* Active Color Tag on Photo */}
-              {activePhoto?.colorName && (
-                <div className="absolute top-4 left-4 z-10 bg-black/70 backdrop-blur-md border border-white/10 px-3 py-1 rounded-full text-xs font-medium text-white flex items-center space-x-1.5">
-                  <span className="w-2 h-2 rounded-full bg-brand"></span>
-                  <span>Color: {activePhoto.colorName}</span>
-                </div>
-              )}
-
-              {/* Zoom Trigger Button */}
-              {activePhoto?.url && (
-                <button
-                  type="button"
+              {/* Click to Zoom Hint */}
+              {allPhotos.length > 0 && (
+                <div
                   onClick={() => setIsZoomOpen(true)}
-                  className="absolute top-4 right-4 z-10 p-2.5 rounded-full bg-black/70 backdrop-blur-md text-white hover:bg-black border border-white/10 transition-colors shadow-md"
-                  title="Click to Zoom"
+                  className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 cursor-pointer bg-black/60 backdrop-blur-sm border border-white/10 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] text-neutral-300 hover:text-white hover:bg-black/80 transition-all select-none shadow-sm"
                 >
-                  <ZoomIn className="w-4 h-4" />
-                </button>
+                  Click to zoom
+                </div>
               )}
 
               {/* Prev / Next Arrows */}
@@ -326,7 +345,7 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
                   <button
                     type="button"
                     onClick={(e) => { e.stopPropagation(); handlePrevPhoto(); }}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-black/60 hover:bg-black text-white border border-white/10 transition-colors opacity-90 md:opacity-0 md:group-hover:opacity-100 shadow-lg"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 z-10 p-2.5 rounded-full bg-black/60 hover:bg-black text-white border border-white/10 transition-colors opacity-90 md:opacity-0 md:group-hover:opacity-100 shadow-lg cursor-pointer"
                     aria-label="Previous Photo"
                   >
                     <ChevronLeft className="w-5 h-5" />
@@ -334,7 +353,7 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
                   <button
                     type="button"
                     onClick={(e) => { e.stopPropagation(); handleNextPhoto(); }}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-black/60 hover:bg-black text-white border border-white/10 transition-colors opacity-90 md:opacity-0 md:group-hover:opacity-100 shadow-lg"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 z-10 p-2.5 rounded-full bg-black/60 hover:bg-black text-white border border-white/10 transition-colors opacity-90 md:opacity-0 md:group-hover:opacity-100 shadow-lg cursor-pointer"
                     aria-label="Next Photo"
                   >
                     <ChevronRight className="w-5 h-5" />
@@ -344,18 +363,16 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
 
               {/* Photo Counter */}
               {allPhotos.length > 1 && (
-                <div className="absolute bottom-4 right-4 z-10 bg-black/75 backdrop-blur-md border border-white/10 px-2.5 py-1 rounded-md text-[11px] font-mono text-neutral-300">
+                <div className="absolute bottom-4 right-4 z-10 bg-black/75 backdrop-blur-md border border-white/10 px-2.5 py-1 rounded-md text-[11px] font-mono text-neutral-300 select-none">
                   {activePhotoIndex + 1} / {allPhotos.length}
                 </div>
               )}
             </div>
 
-            {/* ALL PHOTOS OF COLOURS SHOWCASE SECTION */}
-            <div className="bg-[#0f1015] border border-[#1f2025] rounded-2xl p-4 md:p-6 shadow-md">
-              {allPhotos.length === 0 ? (
-                <p className="text-xs text-neutral-500 py-2">No additional color photos uploaded.</p>
-              ) : (
-                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+            {/* Gallery Thumbnails (if multiple photos) */}
+            {allPhotos.length > 1 && (
+              <div className="bg-[#0f1015] border border-[#1f2025] rounded-2xl p-4 md:p-6 shadow-md">
+                <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-3">
                   {allPhotos.map((photo, idx) => {
                     const isActive = idx === activePhotoIndex;
                     return (
@@ -363,41 +380,27 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
                         key={photo.id}
                         type="button"
                         onClick={() => handlePhotoSelect(idx)}
-                        className={`group flex flex-col items-center rounded-xl p-1.5 border text-left transition-all ${
+                        className={`group relative aspect-square rounded-xl overflow-hidden border transition-all ${
                           isActive 
-                            ? 'border-white bg-white text-black ring-2 ring-white shadow-lg' 
-                            : 'border-white/20 bg-white/5 text-white/50 hover:border-white/50 hover:text-white/80'
+                            ? 'border-white ring-2 ring-white shadow-lg' 
+                            : 'border-white/20 hover:border-white/50 opacity-70 hover:opacity-100'
                         }`}
                       >
-                        <div className="relative aspect-square w-full rounded-lg overflow-hidden bg-neutral-900 mb-1.5">
-                          <img 
-                            src={photo.url} 
-                            alt={photo.label}
-                            className={`w-full h-full object-cover transition-transform duration-300 ${
-                              isActive ? 'scale-105' : 'group-hover:scale-105 opacity-80 group-hover:opacity-100'
-                            }`} 
-                          />
-                          {isActive && (
-                            <div className="absolute top-1 right-1 bg-black text-white rounded-full p-0.5 shadow">
-                              <Check className="w-2.5 h-2.5 stroke-[3]" />
-                            </div>
-                          )}
-                        </div>
-                        <span className={`text-[11px] font-medium truncate w-full text-center px-1 transition-colors ${
-                          isActive ? 'text-black font-bold' : 'text-white/50 group-hover:text-white'
-                        }`}>
-                          {photo.label}
-                        </span>
+                        <img 
+                          src={photo.url} 
+                          alt={photo.label}
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
+                        />
                       </button>
                     );
                   })}
                 </div>
-              )}
-            </div>
+              </div>
+            )}
 
           </div>
 
-          {/* RIGHT COLUMN: Product Details, Description & WhatsApp Inquiry */}
+          {/* RIGHT COLUMN: Product Details & WhatsApp Inquiry */}
           <div className="lg:col-span-5 flex flex-col space-y-6">
             
             {/* Title & SKU & Price Box */}
@@ -426,80 +429,27 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
                 </div>
               ) : null}
 
-              {/* Color Selection Swatches */}
-              <div className="pt-3 border-t border-[#1f2025] space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs md:text-sm font-medium text-white/70">
-                    Selected Color: <span className="text-white font-bold">{selectedColor}</span>
-                  </label>
-                  <span className="text-[11px] text-white/50">
-                    {1 + colorVariants.length} Available
-                  </span>
-                </div>
-
-                <div className="flex flex-wrap gap-2">
-                  {/* Primary Color Pill */}
-                  <button
-                    type="button"
-                    onClick={() => handleColorSelect(primaryColorName)}
-                    className={`text-xs px-3.5 py-1.5 rounded-full border transition-all flex items-center space-x-1.5 ${
-                      selectedColor === primaryColorName
-                        ? 'bg-white text-black border-white font-bold shadow-md'
-                        : 'border-white/20 bg-white/5 text-white/50 hover:border-white/40 hover:text-white/80'
-                    }`}
-                  >
-                    <span className={`w-2 h-2 rounded-full ${selectedColor === primaryColorName ? 'bg-black' : 'bg-white/50'}`}></span>
-                    <span>{primaryColorName}</span>
-                  </button>
-
-                  {/* Other Color Variants */}
-                  {colorVariants.map((c, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => handleColorSelect(c.name)}
-                      className={`text-xs px-3.5 py-1.5 rounded-full border transition-all flex items-center space-x-1.5 ${
-                        selectedColor === c.name
-                          ? 'bg-white text-black border-white font-bold shadow-md'
-                          : 'border-white/20 bg-white/5 text-white/50 hover:border-white/40 hover:text-white/80'
-                      }`}
-                    >
-                      <span className={`w-2 h-2 rounded-full ${selectedColor === c.name ? 'bg-black' : 'bg-white/50'}`}></span>
-                      <span>{c.name}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Size Selector if available */}
+              {/* Available Sizes - Only shown if available sizes exist */}
               {availableSizes.length > 0 && (
                 <div className="pt-3 border-t border-[#1f2025] space-y-2">
-                  <div className="flex items-center justify-between">
-                    <label className="text-xs md:text-sm font-medium text-neutral-300">
-                      Select Size {selectedSize && <span className="text-brand font-bold">({selectedSize})</span>}
-                    </label>
+                  <div className="text-xs md:text-sm font-medium text-neutral-300">
+                    Available Sizes:
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {availableSizes.map((size) => (
-                      <button
+                      <span
                         key={size}
-                        type="button"
-                        onClick={() => setSelectedSize(size === selectedSize ? '' : size)}
-                        className={`px-3.5 py-1.5 rounded-lg text-xs font-medium border transition-all ${
-                          selectedSize === size
-                            ? 'bg-brand text-button-text border-brand font-bold shadow-md'
-                            : 'bg-black text-neutral-300 border-[#1f2025] hover:border-neutral-600'
-                        }`}
+                        className="px-3.5 py-1.5 rounded-lg text-xs font-medium bg-neutral-900 text-white border border-[#1f2025]"
                       >
                         {size}
-                      </button>
+                      </span>
                     ))}
                   </div>
                 </div>
               )}
 
               {/* Primary Call to Action: WhatsApp Inquiry */}
-              <div className="pt-4 border-t border-[#1f2025] space-y-2.5">
+              <div className="pt-4 border-t border-[#1f2025]">
                 <a
                   href={whatsappUrl}
                   target="_blank"
@@ -509,9 +459,6 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
                   <MessageCircle className="w-5 h-5 shrink-0" />
                   <span>Inquire on WhatsApp</span>
                 </a>
-                <p className="text-[11px] text-center text-neutral-400">
-                  Direct message with SKU, selected color & size pre-filled.
-                </p>
               </div>
 
             </div>
@@ -528,7 +475,7 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
                 </div>
               ) : (
                 <div className="text-neutral-500 text-sm italic py-2">
-                  Premium quality craftsmanship from {STORE_CONFIG.storeName}. Contact us on WhatsApp for custom design inquiries, fabric specifications, or bulk order pricing.
+                  Premium quality craftsmanship from {STORE_CONFIG.storeName}. Contact us on WhatsApp for bulk order pricing and design inquiries.
                 </div>
               )}
 
@@ -540,7 +487,7 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
                   </h4>
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     {STORE_CONFIG.customFields.map(f => {
-                      if (f.key === 'price' || f.key === 'Size' || f.key === 'size') return null;
+                      if (f.key === 'price' || f.key === 'sizes' || f.key === 'Size' || f.key === 'size' || f.key === 'materialsDetail' || f.key === 'material_details') return null;
                       const val = product.attributes?.[f.key];
                       if (val === undefined || val === null || val === '') return null;
                       const display = typeof val === 'boolean' ? (val ? 'Yes' : 'No') : String(val);
@@ -555,6 +502,18 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
                 </div>
               )}
             </div>
+
+            {/* MATERIALS DETAIL SECTION */}
+            {materialsDetail ? (
+              <div className="bg-[#0f1015] border border-[#1f2025] rounded-2xl p-6 shadow-md space-y-3">
+                <h3 className="font-semibold text-base text-white border-b border-[#1f2025] pb-2.5">
+                  Materials Detail
+                </h3>
+                <div className="text-neutral-300 text-sm leading-relaxed whitespace-pre-line space-y-2">
+                  {materialsDetail}
+                </div>
+              </div>
+            ) : null}
 
             {/* Trust & Guarantee Badges */}
             <div className="grid grid-cols-2 gap-3 text-xs">
@@ -577,7 +536,7 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
           <section className="mt-16 pt-10 border-t border-[#1f2025]">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-xl md:text-2xl font-bold text-white font-serif">More from Rikli Creation</h2>
+                <h2 className="text-xl md:text-2xl font-bold text-white font-serif">More from {STORE_CONFIG.storeName}</h2>
                 <p className="text-xs text-neutral-400 mt-1">Explore similar items from our collection</p>
               </div>
               <Link 
@@ -595,7 +554,7 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
                   key={p.id}
                   product={p}
                   onInquire={() => {
-                    const message = `Hello Rikli Creation, I want to know more about ${p.sku} (${p.name})`;
+                    const message = `Hello ${STORE_CONFIG.storeName}, I want to know more about ${p.name} (SKU: ${p.sku})`;
                     const url = `https://wa.me/${STORE_CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
                     window.open(url, '_blank');
                   }}

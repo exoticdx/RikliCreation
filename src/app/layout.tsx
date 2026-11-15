@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Rikli Creation | Wholesale Catalogue",
-  description: "Browse our exclusive collection of premium products at Rikli Creation.",
+  title: "RC Imitation Jewellery | Wholesale Catalogue",
+  description: "Browse our exclusive collection of premium imitation jewellery at RC Imitation Jewellery.",
 };
 
 import { Suspense } from "react";

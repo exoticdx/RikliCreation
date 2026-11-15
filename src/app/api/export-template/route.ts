@@ -15,11 +15,11 @@ export async function GET() {
     const columns = [
       { header: 'Title*', key: 'title', width: 25 },
       { header: 'SKU*', key: 'sku', width: 15 },
-      { header: 'Primary Color*', key: 'primaryColor', width: 15 },
-      { header: 'Category 1 (Main)*', key: 'category1', width: 20 },
-      { header: 'Category 2 (Sub)*', key: 'category', width: 20 },
-      { header: 'Price', key: 'price', width: 10 },
+      { header: 'Category*', key: 'category', width: 20 },
+      { header: 'Price', key: 'price', width: 12 },
+      { header: 'Available Sizes', key: 'sizes', width: 22 },
       { header: 'Description', key: 'description', width: 30 },
+      { header: 'Materials Detail', key: 'materials_detail', width: 30 },
       { header: 'Image URL 1*', key: 'image_url_1', width: 40 },
       { header: 'Image URL 2', key: 'image_url_2', width: 40 },
       { header: 'Image URL 3', key: 'image_url_3', width: 40 },
@@ -27,10 +27,7 @@ export async function GET() {
       { header: 'Image URL 5', key: 'image_url_5', width: 40 },
     ];
 
-    for (let i = 1; i <= 10; i++) {
-      columns.push({ header: `Color ${i} Name`, key: `color_${i}_name`, width: 15 });
-      columns.push({ header: `Color ${i} Image`, key: `color_${i}_image`, width: 35 });
-    }
+    const baseColsCount = columns.length; // 11
 
     // Add custom fields
     STORE_CONFIG.customFields.forEach(field => {
@@ -69,14 +66,15 @@ export async function GET() {
 
     // Add custom field lists
     STORE_CONFIG.customFields.forEach((field, index) => {
+      const mainColNum = baseColsCount + index + 1;
+      const mainSheetCol = sheet.getColumn(mainColNum).letter;
+
       if (field.type === 'select') {
-        const options = fieldOptions?.filter((o: any) => o.fieldKey === field.key).map((o: any) => o.value) || [];
+        const options = fieldOptions?.filter((o: any) => o.fieldKey === field.key).map((o: any) => o.value) || field.options || [];
         if (options.length > 0) {
           dropdownSheet.getColumn(dropdownColIndex).values = options;
           const colLetter = dropdownSheet.getColumn(dropdownColIndex).letter;
           const range = `DropdownLists!$${colLetter}$1:$${colLetter}$${options.length}`;
-          
-          const mainSheetCol = sheet.getColumn(32 + index + 1).letter;
           
           for (let i = 2; i <= 1000; i++) {
             sheet.getCell(`${mainSheetCol}${i}`).dataValidation = {
@@ -91,7 +89,6 @@ export async function GET() {
           dropdownColIndex++;
         }
       } else if (field.type === 'boolean') {
-        const mainSheetCol = sheet.getColumn(32 + index + 1).letter;
         for (let i = 2; i <= 1000; i++) {
           sheet.getCell(`${mainSheetCol}${i}`).dataValidation = {
             type: 'list',
@@ -101,7 +98,6 @@ export async function GET() {
             errorTitle: 'Invalid Input',
             error: 'Please select Yes or No.'
           };
-          // Default to Yes for boolean fields like "In Stock" if they wish, but blank is fine.
         }
       }
     });
@@ -109,18 +105,25 @@ export async function GET() {
     // Style header
     sheet.getRow(1).font = { bold: true };
     sheet.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0E0E0' } };
-    // Add default row if any default values exist
-    const defaultRow: any = {};
+    
+    // Add default sample row
+    const defaultRow: any = {
+      title: 'Bridal Kundan Necklace Set',
+      sku: 'RC-101',
+      category: categoryNames[0] || 'Necklace Set',
+      price: 1450,
+      sizes: '2.4, 2.6, 2.8',
+      description: 'Handcrafted antique gold finish necklace with matching earrings.',
+      materials_detail: 'High-grade copper brass alloy with micro gold plating, AAA cubic zirconia and simulated pearls.',
+    };
+
     STORE_CONFIG.customFields.forEach(field => {
       if (field.defaultValue !== undefined) {
-        const headerName = `Attr: ${field.label}`;
-        const col = columns.find(c => c.header === headerName);
-        if (col && col.key) defaultRow[col.key] = field.type === 'boolean' ? (field.defaultValue ? 'Yes' : 'No') : field.defaultValue;
+        defaultRow[`attr_${field.key}`] = field.type === 'boolean' ? (field.defaultValue ? 'Yes' : 'No') : field.defaultValue;
       }
     });
-    if (Object.keys(defaultRow).length > 0) {
-      sheet.addRow(defaultRow);
-    }
+    
+    sheet.addRow(defaultRow);
 
     const buffer = await workbook.xlsx.writeBuffer();
     

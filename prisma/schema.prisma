@@ -13,6 +13,9 @@ datasource db {
 model Category {
   id       String    @id @default(cuid())
   name     String
+  imageUrl String?
+  tags     String?
+  order    Int?      @default(0)
   products Product[]
 }
 

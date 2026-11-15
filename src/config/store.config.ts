@@ -56,33 +56,22 @@ export interface StoreConfig {
 // CONFIGURE YOUR CLIENT'S STORE HERE
 // ---------------------------------------------------------
 export const STORE_CONFIG: StoreConfig = {
-  storeName: "Rikli Creation",
+  storeName: "RC Imitation Jewellery",
   colors: {
     navHeading: "#ffffff",       // Color for the store name in navbar
     buttonBackground: "#0f1015", // Color for buttons (like Inquire, Add Product)
     buttonText: "#ffffff",       // Text color inside buttons
     textContent: "#ffffff"       // Color for product names and general front-end text
   },
-  whatsappNumber: "919510072745",
+  whatsappNumber: "918239443399",
   maxImagesPerProduct: 5,
-  homepageCategories: [
-    { name: "Cord Set", image: "https://i.pinimg.com/1200x/f3/be/68/f3be681610e27754af9c37ef095c0dd1.jpg" },
-    { name: "Kurties", image: "https://i.pinimg.com/736x/fa/8c/c7/fa8cc72d6f36e5cc68dcaff2a96e3a9d.jpg" }
-  ],
+  homepageCategories: [],
   customFields: [
     {
       key: 'material',
       label: 'Material',
       type: 'select',
-      options: ['Gold Plated', 'Silver Plated', 'Rose Gold', 'Brass', 'Alloy'],
-      isFilterable: false,
-      isSortable: false
-    },
-    {
-      key: 'Size',
-      label: 'Size',
-      defaultValue:'M,L,XL,XXL,XXXL',
-      type: 'text',
+      options: ['Gold Plated', 'Silver Plated', 'Rose Gold', 'Brass', 'Alloy', 'Antique Gold', 'Matte Gold', 'Kundan'],
       isFilterable: false,
       isSortable: false
     },
@@ -98,23 +87,16 @@ export const STORE_CONFIG: StoreConfig = {
   homeLayout: [
     {
       type: 'heroCarousel',
-      slides: 
-      [
+      slides: [
         { 
-          title: "Address", 
-          subtitle: "B-5144/45 Global Textile Market, Surat, Gujarat"
+          title: "RC IMITATION JEWELLERY", 
+          subtitle: "Handcrafted Luxury • Bridal & Wholesale Jewellery Collections"
         },
         { 
-          title: "MOQ", 
-          subtitle: "Minimum 10 Set"
+          title: "DIRECT WHOLESALE", 
+          subtitle: "Premium Quality Craftsmanship • Pan-India Fast Delivery"
         },
-
       ]
-    },
-    // {
-    //   type: 'textContent',
-    //   title: 'Welcome to RC Imitation Jewellery',
-    //   body: 'Browse our exclusive collection of premium imitation jewellery. We offer the best wholesale prices directly from manufacturers.'
-    // }
+    }
   ]
 };

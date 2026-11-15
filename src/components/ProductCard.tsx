@@ -3,7 +3,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Product } from './CatalogueClient';
 import { MessageCircle } from 'lucide-react';
-import toast from 'react-hot-toast';
 import { STORE_CONFIG } from '@/config/store.config';
 
 interface ProductCardProps {
@@ -14,9 +13,8 @@ interface ProductCardProps {
   isInCart?: boolean;
 }
 
-export default function ProductCard({ product, onInquire, onAdd, onImageClick, isInCart }: ProductCardProps) {
+export default function ProductCard({ product, onInquire }: ProductCardProps) {
   const router = useRouter();
-  const [activeColorIdx, setActiveColorIdx] = useState<number | null>(null);
   const [isOpening, setIsOpening] = useState(false);
 
   // Auto reset isOpening if navigation finishes or user comes back
@@ -33,16 +31,14 @@ export default function ProductCard({ product, onInquire, onAdd, onImageClick, i
     };
   }, [isOpening]);
 
-  const colors = product.attributes?.colors || [];
-  const displayImage = activeColorIdx !== null && colors[activeColorIdx] ? colors[activeColorIdx].imageUrl : product.imageUrl;
+  const displayImage = product.imageUrl;
 
-  // Preserve current query parameters (e.g. ?type=Cord+Set&cat=...) or fallback to product's parent category
+  // Preserve current query parameters (e.g. ?cat=...) or fallback to product category
   const search = typeof window !== 'undefined' ? window.location.search : '';
-  const query = search || (product.attributes?.parent_category ? `?type=${encodeURIComponent(product.attributes.parent_category)}` : '');
+  const query = search || (product.categoryId ? `?cat=${encodeURIComponent(product.categoryId)}` : '');
   const productHref = `/product/${product.id}${query}`;
 
   const handleCardClick = (e: React.MouseEvent) => {
-    // If the click is on an interactive element (button, link, input), let it handle its own event
     const target = e.target as HTMLElement;
     if (target.closest('button') || target.closest('a')) {
       return;
@@ -54,6 +50,8 @@ export default function ProductCard({ product, onInquire, onAdd, onImageClick, i
     }
     router.push(productHref);
   };
+
+  const sizes = product.attributes?.sizes || product.attributes?.Size || product.attributes?.size;
 
   return (
     <div 
@@ -92,13 +90,6 @@ export default function ProductCard({ product, onInquire, onAdd, onImageClick, i
             No Image
           </div>
         )}
-
-        {/* Color Badge indicator if variant active */}
-        {activeColorIdx !== null && colors[activeColorIdx] && (
-          <span className="absolute bottom-2 left-2 bg-black/75 backdrop-blur-sm border border-white/10 text-[10px] text-white px-2 py-0.5 rounded-full font-medium">
-            {colors[activeColorIdx].name}
-          </span>
-        )}
       </Link>
 
       {/* Card Body */}
@@ -130,43 +121,12 @@ export default function ProductCard({ product, onInquire, onAdd, onImageClick, i
             ₹{Number(product.attributes.price).toLocaleString('en-IN')}
           </div>
         )}
-        
-        {/* Color Swatches */}
-        {colors.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mb-2">
-            <button 
-              type="button"
-              onClick={(e) => { 
-                e.preventDefault(); 
-                e.stopPropagation(); 
-                setActiveColorIdx(null); 
-              }}
-              className={`text-[10px] md:text-xs px-2 py-1 rounded-full border transition-colors ${
-                activeColorIdx === null 
-                  ? 'bg-white text-black border-white font-medium shadow-sm' 
-                  : 'border-white/20 bg-white/5 text-white/50 hover:border-white/40 hover:text-white/80'
-              }`}
-            >
-              {product.attributes?.color || 'Default'}
-            </button>
-            {colors.map((c: any, idx: number) => (
-              <button 
-                key={idx}
-                type="button"
-                onClick={(e) => { 
-                  e.preventDefault(); 
-                  e.stopPropagation(); 
-                  setActiveColorIdx(idx); 
-                }}
-                className={`text-[10px] md:text-xs px-2 py-1 rounded-full border transition-colors ${
-                  activeColorIdx === idx 
-                    ? 'bg-white text-black border-white font-medium shadow-sm' 
-                    : 'border-white/20 bg-white/5 text-white/50 hover:border-white/40 hover:text-white/80'
-                }`}
-              >
-                {c.name}
-              </button>
-            ))}
+
+        {/* Available Sizes preview if exists */}
+        {sizes && (
+          <div className="text-[11px] text-neutral-400 mb-2">
+            <span className="text-neutral-500 font-medium">Sizes: </span>
+            {sizes}
           </div>
         )}
 
@@ -175,21 +135,12 @@ export default function ProductCard({ product, onInquire, onAdd, onImageClick, i
           {product.attributes && Object.keys(product.attributes).length > 0 && (
             <div className="flex flex-wrap gap-1 mt-1 mb-2">
               {STORE_CONFIG.customFields.map(field => {
-                if (field.key === 'price') return null; // Price is highlighted above
+                if (field.key === 'price' || field.key === 'sizes' || field.key === 'Size' || field.key === 'size') return null;
                 
                 const val = product.attributes![field.key];
                 if (val === undefined || val === null || val === '') return null;
                 
-                let displayVal = val;
-                if (field.type === 'boolean') {
-                  displayVal = val ? 'Yes' : 'No';
-                } else if (field.type === 'sizes_manager') {
-                  if (Array.isArray(val)) {
-                    const available = val.filter(s => s.inStock).map(s => s.size);
-                    if (available.length === 0) return null;
-                    displayVal = available.join(', ');
-                  }
-                }
+                const displayVal = typeof val === 'boolean' ? (val ? 'Yes' : 'No') : String(val);
                 
                 return (
                   <span key={field.key} className="text-[10px] md:text-xs bg-neutral-900 text-neutral-400 px-1.5 py-0.5 rounded">
@@ -203,10 +154,9 @@ export default function ProductCard({ product, onInquire, onAdd, onImageClick, i
         
         {/* Actions */}
         <div className="flex flex-col space-y-2 mt-auto z-10 relative pt-2">
-          
           {/* Print-only WhatsApp Link */}
           <a 
-            href={`https://wa.me/${STORE_CONFIG.whatsappNumber}?text=${encodeURIComponent(`I want to know about this product, product sku is ${product.sku}`)}`}
+            href={`https://wa.me/${STORE_CONFIG.whatsappNumber}?text=${encodeURIComponent(`Hello ${STORE_CONFIG.storeName}, I want to know about ${product.name} (SKU: ${product.sku})`)}`}
             target="_blank"
             rel="noopener noreferrer"
             className="hidden print:block text-xs font-medium underline text-center"

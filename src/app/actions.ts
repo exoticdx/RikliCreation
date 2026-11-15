@@ -92,10 +92,92 @@ export async function logoutAdmin() {
   return { success: true };
 }
 
-export async function addCategory(name: string) {
+export async function addCategory(name: string, imageUrl: string = '', tags: string = '') {
   await checkAuth();
   const id = 'c' + Math.random().toString(36).substr(2, 9);
-  await supabase.from('Category').insert([{ id, name }]);
+  const cleanTags = typeof tags === 'string' ? tags.trim() : Array.isArray(tags) ? (tags as string[]).join(', ') : '';
+  
+  let insertedWithImage = false;
+  if (imageUrl || cleanTags) {
+    try {
+      const payload: any = { id, name };
+      if (imageUrl) payload.imageUrl = imageUrl;
+      if (cleanTags) payload.tags = cleanTags;
+      const { error } = await supabase.from('Category').insert([payload]);
+      if (!error) {
+        insertedWithImage = true;
+      }
+    } catch {
+      // Fallback if imageUrl or tags column does not exist
+    }
+  }
+
+  if (!insertedWithImage) {
+    await supabase.from('Category').insert([{ id, name }]);
+    if (imageUrl) {
+      const optId = 'o' + Math.random().toString(36).substr(2, 9);
+      await supabase.from('FieldOption').insert([{ id: optId, fieldKey: `cat_img_${id}`, value: imageUrl }]);
+    }
+  }
+
+  if (cleanTags) {
+    const optId = 'o' + Math.random().toString(36).substr(2, 9);
+    await supabase.from('FieldOption').insert([{ id: optId, fieldKey: `cat_tags_${id}`, value: cleanTags }]);
+  }
+
+  // Append new category to category_order list if present
+  try {
+    const { data: existingOrder } = await supabase.from('FieldOption').select('id, value').eq('fieldKey', 'category_order').single();
+    if (existingOrder?.value) {
+      const orderList = JSON.parse(existingOrder.value);
+      if (!orderList.includes(id)) {
+        orderList.push(id);
+        await supabase.from('FieldOption').update({ value: JSON.stringify(orderList) }).eq('id', existingOrder.id);
+      }
+    }
+  } catch {}
+
+  revalidatePath('/');
+  revalidatePath('/riklicreationadminpafe2021222324');
+}
+
+export async function updateCategory(id: string, name: string, imageUrl: string = '', tags: string = '') {
+  await checkAuth();
+  const cleanTags = typeof tags === 'string' ? tags.trim() : Array.isArray(tags) ? (tags as string[]).join(', ') : '';
+  
+  let updatedWithImage = false;
+  if (imageUrl !== undefined || cleanTags !== undefined) {
+    try {
+      const payload: any = { name };
+      if (imageUrl !== undefined) payload.imageUrl = imageUrl;
+      if (cleanTags !== undefined) payload.tags = cleanTags;
+      const { error } = await supabase.from('Category').update(payload).eq('id', id);
+      if (!error) {
+        updatedWithImage = true;
+      }
+    } catch {
+      // Fallback if column does not exist
+    }
+  }
+
+  if (!updatedWithImage) {
+    await supabase.from('Category').update({ name }).eq('id', id);
+    await supabase.from('FieldOption').delete().eq('fieldKey', `cat_img_${id}`);
+    if (imageUrl) {
+      const optId = 'o' + Math.random().toString(36).substr(2, 9);
+      await supabase.from('FieldOption').insert([{ id: optId, fieldKey: `cat_img_${id}`, value: imageUrl }]);
+    }
+  } else {
+    await supabase.from('FieldOption').delete().eq('fieldKey', `cat_img_${id}`);
+  }
+
+  // Sync tags in FieldOption
+  await supabase.from('FieldOption').delete().eq('fieldKey', `cat_tags_${id}`);
+  if (cleanTags) {
+    const optId = 'o' + Math.random().toString(36).substr(2, 9);
+    await supabase.from('FieldOption').insert([{ id: optId, fieldKey: `cat_tags_${id}`, value: cleanTags }]);
+  }
+
   revalidatePath('/');
   revalidatePath('/riklicreationadminpafe2021222324');
 }
@@ -104,21 +186,66 @@ export async function deleteCategory(id: string) {
   await checkAuth();
   await supabase.from('Product').delete().eq('categoryId', id);
   await supabase.from('Category').delete().eq('id', id);
+  await supabase.from('FieldOption').delete().eq('fieldKey', `cat_img_${id}`);
+  await supabase.from('FieldOption').delete().eq('fieldKey', `cat_tags_${id}`);
+
+  // Remove deleted category from category_order list if present
+  try {
+    const { data: existingOrder } = await supabase.from('FieldOption').select('id, value').eq('fieldKey', 'category_order').single();
+    if (existingOrder?.value) {
+      const orderList = JSON.parse(existingOrder.value).filter((catId: string) => catId !== id);
+      await supabase.from('FieldOption').update({ value: JSON.stringify(orderList) }).eq('id', existingOrder.id);
+    }
+  } catch {}
+
   revalidatePath('/');
   revalidatePath('/riklicreationadminpafe2021222324');
+}
+
+export async function reorderCategories(orderedIds: string[]) {
+  await checkAuth();
+
+  // 1. Store ordered category IDs in FieldOption under key 'category_order'
+  const { data: existing } = await supabase.from('FieldOption').select('id').eq('fieldKey', 'category_order').single();
+  const value = JSON.stringify(orderedIds);
+  if (existing) {
+    await supabase.from('FieldOption').update({ value }).eq('id', existing.id);
+  } else {
+    const optId = 'o' + Math.random().toString(36).substr(2, 9);
+    await supabase.from('FieldOption').insert([{ id: optId, fieldKey: 'category_order', value }]);
+  }
+
+  // 2. Also update order column on Category if the column exists
+  for (let i = 0; i < orderedIds.length; i++) {
+    try {
+      await supabase.from('Category').update({ order: i }).eq('id', orderedIds[i]);
+    } catch {
+      // Ignore if order column does not exist
+    }
+  }
+
+  revalidatePath('/');
+  revalidatePath('/riklicreationadminpafe2021222324');
+  return { success: true };
 }
 
 export async function addProduct(data: { sku: string; name: string; description: string; imageUrl: string; categoryId: string; attributes?: any }) {
   await checkAuth();
   const id = 'p' + Math.random().toString(36).substr(2, 9);
-  await supabase.from('Product').insert([{ id, ...data }]);
+  const { error } = await supabase.from('Product').insert([{ id, ...data }]);
+  if (error) {
+    throw new Error(error.message);
+  }
   revalidatePath('/');
   revalidatePath('/riklicreationadminpafe2021222324');
 }
 
 export async function updateProduct(id: string, data: { sku: string; name: string; description: string; imageUrl: string; categoryId: string; attributes?: any }) {
   await checkAuth();
-  await supabase.from('Product').update(data).eq('id', id);
+  const { error } = await supabase.from('Product').update(data).eq('id', id);
+  if (error) {
+    throw new Error(error.message);
+  }
   revalidatePath('/');
   revalidatePath('/riklicreationadminpafe2021222324');
 }
@@ -146,6 +273,17 @@ export async function bulkAddProducts(items: { sku: string; name: string; imageU
       }));
       await supabase.from('Category').insert(newCategories);
       newCategories.forEach(c => categoryMap.set(c.name.toLowerCase(), c.id));
+
+      try {
+        const { data: existingOrder } = await supabase.from('FieldOption').select('id, value').eq('fieldKey', 'category_order').single();
+        if (existingOrder?.value) {
+          const orderList = JSON.parse(existingOrder.value);
+          newCategories.forEach(c => {
+            if (!orderList.includes(c.id)) orderList.push(c.id);
+          });
+          await supabase.from('FieldOption').update({ value: JSON.stringify(orderList) }).eq('id', existingOrder.id);
+        }
+      } catch {}
     }
 
     const { data: existingProducts } = await supabase.from('Product').select('sku');
