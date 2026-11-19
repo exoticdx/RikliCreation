@@ -62,6 +62,46 @@ export default function AdminDashboard({ categories: initialCategories, products
     router.push('/riklicreationloginpafe2021222324');
   };
 
+  const uploadFileDirect = async (file: File): Promise<string> => {
+    // 1. Try presigned direct upload first
+    try {
+      const { getUploadUrl } = await import('@/app/actions');
+      const res = await getUploadUrl(file.name, file.type);
+      if (res?.success && res.uploadUrl && res.finalUrl) {
+        const uploadRes = await fetch(res.uploadUrl, {
+          method: 'PUT',
+          body: file,
+          headers: { 'Content-Type': file.type || 'application/octet-stream' },
+        });
+        if (uploadRes.ok) {
+          return res.finalUrl;
+        }
+      }
+    } catch (presignedErr) {
+      console.warn('Presigned direct upload failed or blocked by CORS, falling back to /api/upload...', presignedErr);
+    }
+
+    // 2. Seamless fallback to /api/upload (same-origin, immune to browser CORS and CSRF blocks)
+    const formData = new FormData();
+    formData.append('file', file);
+    const apiRes = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!apiRes.ok) {
+      const errJson = await apiRes.json().catch(() => ({}));
+      throw new Error(errJson.error || `Upload failed with status ${apiRes.status}`);
+    }
+
+    const data = await apiRes.json();
+    if (!data.success || !data.url) {
+      throw new Error(data.error || 'Failed to upload image');
+    }
+
+    return data.url;
+  };
+
   const handleGenerateUrls = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -73,24 +113,18 @@ export default function AdminDashboard({ categories: initialCategories, products
       const newUrls: {name: string, url: string}[] = [];
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        const { getUploadUrl } = await import('@/app/actions');
-        const res = await getUploadUrl(file.name, file.type);
-        
-        if (res.success && res.uploadUrl && res.finalUrl) {
-          const uploadRes = await fetch(res.uploadUrl, {
-            method: 'PUT',
-            body: file,
-            headers: { 'Content-Type': file.type || 'application/octet-stream' },
-          });
-          
-          if (uploadRes.ok) {
-            newUrls.push({ name: file.name, url: res.finalUrl });
-          }
+        try {
+          const finalUrl = await uploadFileDirect(file);
+          newUrls.push({ name: file.name, url: finalUrl });
+        } catch (fileErr: any) {
+          toast.error(`Failed to upload ${file.name}: ${fileErr.message}`);
         }
       }
       
-      setGeneratedUrls(prev => [...prev, ...newUrls]);
-      toast.success(`Generated ${newUrls.length} URL(s)!`, { id: t });
+      if (newUrls.length > 0) {
+        setGeneratedUrls(prev => [...prev, ...newUrls]);
+        toast.success(`Generated ${newUrls.length} URL(s)!`, { id: t });
+      }
     } catch (err: any) {
       toast.error(err.message, { id: t });
     } finally {
@@ -110,25 +144,11 @@ export default function AdminDashboard({ categories: initialCategories, products
       const uploadedUrls: string[] = [];
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        const { getUploadUrl } = await import('@/app/actions');
-        const res = await getUploadUrl(file.name, file.type);
-        
-        if (res.success && res.uploadUrl && res.finalUrl) {
-          const uploadRes = await fetch(res.uploadUrl, {
-            method: 'PUT',
-            body: file,
-            headers: {
-              'Content-Type': file.type || 'application/octet-stream',
-            },
-          });
-          
-          if (uploadRes.ok) {
-            uploadedUrls.push(res.finalUrl);
-          } else {
-            toast.error(`Failed to upload ${file.name}`);
-          }
-        } else {
-          toast.error(`Failed to get upload URL for ${file.name}`);
+        try {
+          const finalUrl = await uploadFileDirect(file);
+          uploadedUrls.push(finalUrl);
+        } catch (fileErr: any) {
+          toast.error(`Failed to upload ${file.name}: ${fileErr.message}`);
         }
       }
       
@@ -152,25 +172,9 @@ export default function AdminDashboard({ categories: initialCategories, products
     const t = toast.loading('Uploading category image...');
 
     try {
-      const { getUploadUrl } = await import('@/app/actions');
-      const res = await getUploadUrl(file.name, file.type);
-
-      if (res.success && res.uploadUrl && res.finalUrl) {
-        const uploadRes = await fetch(res.uploadUrl, {
-          method: 'PUT',
-          body: file,
-          headers: { 'Content-Type': file.type || 'application/octet-stream' },
-        });
-
-        if (uploadRes.ok) {
-          setNewCategoryImage(res.finalUrl);
-          toast.success('Category photo uploaded!', { id: t });
-        } else {
-          throw new Error('Upload rejected by server.');
-        }
-      } else {
-        throw new Error('Failed to generate upload URL.');
-      }
+      const finalUrl = await uploadFileDirect(file);
+      setNewCategoryImage(finalUrl);
+      toast.success('Category photo uploaded!', { id: t });
     } catch (err: any) {
       toast.error(err.message || 'Failed to upload image', { id: t });
     } finally {
