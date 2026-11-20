@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { addCategory, updateCategory, deleteCategory, reorderCategories, addProduct, updateProduct, deleteProduct, bulkAddProducts, logoutAdmin, addFieldOption, deleteFieldOption } from '../actions';
-import { Trash2, Plus, Upload, Download, AlertCircle, LogOut, X, Edit, Link as LinkIcon, Copy, Layers, Image as ImageIcon, ChevronUp, ChevronDown, GripVertical } from 'lucide-react';
+import { Trash2, Plus, Upload, Download, AlertCircle, LogOut, X, Edit, Link as LinkIcon, Copy, Layers, Image as ImageIcon, ChevronUp, ChevronDown, GripVertical, Star, ArrowLeft, ArrowRight } from 'lucide-react';
 import ExcelJS from 'exceljs';
 import toast from 'react-hot-toast';
 import { STORE_CONFIG } from '@/config/store.config';
@@ -181,6 +181,27 @@ export default function AdminDashboard({ categories: initialCategories, products
       setIsUploadingCatImage(false);
       if (e.target) e.target.value = '';
     }
+  };
+
+  const handleSetPrimaryImage = (index: number) => {
+    if (index === 0) return;
+    setImageUrls(prev => {
+      const selected = prev[index];
+      const rest = prev.filter((_, idx) => idx !== index);
+      return [selected, ...rest];
+    });
+    toast.success('Set as primary cover image');
+  };
+
+  const handleMoveImage = (fromIndex: number, direction: 'left' | 'right') => {
+    const toIndex = direction === 'left' ? fromIndex - 1 : fromIndex + 1;
+    setImageUrls(prev => {
+      if (toIndex < 0 || toIndex >= prev.length) return prev;
+      const copy = [...prev];
+      const [item] = copy.splice(fromIndex, 1);
+      copy.splice(toIndex, 0, item);
+      return copy;
+    });
   };
 
   const handleEditCategoryClick = (category: any) => {
@@ -1223,31 +1244,88 @@ export default function AdminDashboard({ categories: initialCategories, products
               
               {/* Product Images Upload */}
               <div className="border border-[#1f2025] rounded-xl p-4 bg-black">
-                <label className="block text-sm font-medium text-white mb-2">Product Images (Up to 5)</label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-sm font-medium text-white">Product Images (Up to 5)</label>
+                  <span className="text-[11px] text-neutral-400">{imageUrls.length} / 5 uploaded</span>
+                </div>
+                <p className="text-xs text-neutral-400 mb-3">
+                  The first image is the <span className="text-amber-400 font-medium">Primary Cover</span>. Click <span className="text-amber-400 font-medium">"Set Primary"</span> on any image to set it as the main cover.
+                </p>
                 <div className="flex flex-wrap gap-3 mb-2">
                   {imageUrls.map((url, i) => (
-                    <div key={i} className="relative group w-20 h-20 border border-[#1f2025] bg-[#0f1015] rounded-lg overflow-hidden shadow-sm">
-                      <img src={url} alt="upload" className="w-full h-full object-cover" />
-                      <button 
-                        onClick={() => setImageUrls(prev => prev.filter((_, idx) => idx !== i))}
-                        className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                      {i === 0 && <span className="absolute bottom-0 left-0 right-0 bg-black/80 text-white text-[10px] text-center py-0.5">Primary</span>}
+                    <div 
+                      key={`${url}-${i}`} 
+                      className={`relative group w-24 h-24 bg-[#0f1015] rounded-xl overflow-hidden transition-all shadow-sm ${
+                        i === 0 
+                          ? 'border-2 border-amber-400 ring-2 ring-amber-400/30' 
+                          : 'border border-[#1f2025] hover:border-neutral-500'
+                      }`}
+                    >
+                      <img src={url} alt={`product-img-${i}`} className="w-full h-full object-cover select-none" />
+
+                      {/* Top Action Buttons (Reorder & Delete) */}
+                      <div className="absolute top-1 right-1 flex items-center space-x-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                        {i > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => handleMoveImage(i, 'left')}
+                            className="bg-black/80 hover:bg-black text-white rounded p-1 transition-colors shadow-sm cursor-pointer"
+                            title="Move Left"
+                          >
+                            <ArrowLeft className="w-3 h-3" />
+                          </button>
+                        )}
+                        {i < imageUrls.length - 1 && (
+                          <button
+                            type="button"
+                            onClick={() => handleMoveImage(i, 'right')}
+                            className="bg-black/80 hover:bg-black text-white rounded p-1 transition-colors shadow-sm cursor-pointer"
+                            title="Move Right"
+                          >
+                            <ArrowRight className="w-3 h-3" />
+                          </button>
+                        )}
+                        <button 
+                          type="button"
+                          onClick={() => setImageUrls(prev => prev.filter((_, idx) => idx !== i))}
+                          className="bg-red-600 hover:bg-red-700 text-white rounded p-1 transition-colors shadow-sm cursor-pointer"
+                          title="Remove Image"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+
+                      {/* Primary Badge or Set Primary Button */}
+                      {i === 0 ? (
+                        <div className="absolute bottom-0 left-0 right-0 bg-amber-500 text-black text-[10px] font-bold text-center py-1 flex items-center justify-center gap-1 shadow-md">
+                          <Star className="w-2.5 h-2.5 fill-black" /> Primary
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => handleSetPrimaryImage(i)}
+                          className="absolute bottom-0 left-0 right-0 bg-black/85 hover:bg-amber-500 hover:text-black text-neutral-200 text-[10px] font-medium text-center py-1 transition-colors cursor-pointer flex items-center justify-center gap-1 group-hover:bg-black/95"
+                          title="Click to set this as the primary image"
+                        >
+                          <Star className="w-2.5 h-2.5 text-amber-400 group-hover:text-black group-hover:fill-black" /> Set Primary
+                        </button>
+                      )}
                     </div>
                   ))}
-                  <label className="w-20 h-20 border-2 border-dashed border-[#1f2025] rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-neutral-900 hover:border-white transition-colors bg-[#0f1015]">
-                    {isUploadingImage ? (
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    ) : (
-                      <>
-                        <Plus className="w-6 h-6 text-neutral-400 mb-1" />
-                        <span className="text-[10px] text-neutral-400 font-medium">Add Image</span>
-                      </>
-                    )}
-                    <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" multiple disabled={isUploadingImage} />
-                  </label>
+
+                  {imageUrls.length < 5 && (
+                    <label className="w-24 h-24 border-2 border-dashed border-[#1f2025] rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-neutral-900 hover:border-white transition-colors bg-[#0f1015]">
+                      {isUploadingImage ? (
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      ) : (
+                        <>
+                          <Plus className="w-6 h-6 text-neutral-400 mb-1" />
+                          <span className="text-[10px] text-neutral-400 font-medium">Add Image</span>
+                        </>
+                      )}
+                      <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" multiple disabled={isUploadingImage} />
+                    </label>
+                  )}
                 </div>
               </div>
 
