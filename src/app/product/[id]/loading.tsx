@@ -14,7 +14,7 @@ export default function ProductLoading() {
           </div>
           <div className="h-4 w-px bg-[#1f2025]"></div>
           <div className="flex items-center space-x-2">
-            <img src="/Logo.png" alt={STORE_CONFIG.storeName} className="h-8 md:h-9 w-auto object-contain opacity-80" />
+            <img src="/Logonew.png" alt={STORE_CONFIG.storeName} className="h-8 md:h-9 w-auto object-contain opacity-80" />
             <span className="font-serif font-bold text-base md:text-lg text-white tracking-tight hidden md:inline">
               {STORE_CONFIG.storeName}
             </span>

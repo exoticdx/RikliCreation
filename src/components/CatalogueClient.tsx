@@ -263,7 +263,7 @@ export default function CatalogueClient({
           onClick={handleBackHome}
           className={`items-end space-x-2 md:space-x-3 cursor-pointer group pb-1 ${isSearchOpen ? 'hidden sm:flex' : 'flex'}`}
         >
-          <img src="/Logo.png" alt="RC Logo" className="h-10 md:h-12 w-auto object-contain transition-transform group-hover:scale-105 shrink-0" />
+          <img src="/Logonew.png" alt="RC Logo" className="h-10 md:h-12 w-auto object-contain transition-transform group-hover:scale-105 shrink-0" />
           <h1 
             className="text-lg md:text-xl font-bold font-serif tracking-wide leading-none pb-0.5 md:pb-1"
             style={{
@@ -529,7 +529,7 @@ export default function CatalogueClient({
           <tr>
             <td className="pb-6 pt-4">
               <div className="flex items-end space-x-3 pb-1">
-                <img src="/Logo.png" alt="Logo" className="h-12 w-auto object-contain shrink-0" />
+                <img src="/Logonew.png" alt="Logo" className="h-12 w-auto object-contain shrink-0" />
                 <h1 
                   className="text-xl font-bold font-serif tracking-wide leading-none pb-1"
                   style={{

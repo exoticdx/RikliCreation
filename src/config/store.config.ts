@@ -63,7 +63,7 @@ export const STORE_CONFIG: StoreConfig = {
     buttonText: "#ffffff",       // Text color inside buttons
     textContent: "#ffffff"       // Color for product names and general front-end text
   },
-  whatsappNumber: "918239443399",
+  whatsappNumber: "918238443399",
   maxImagesPerProduct: 5,
   homepageCategories: [],
   customFields: [

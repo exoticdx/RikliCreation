@@ -243,7 +243,7 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
             }}
             className="flex items-end space-x-2 pb-1"
           >
-            <img src="/Logo.png" alt="RC Logo" className="h-8 md:h-10 w-auto object-contain shrink-0" />
+            <img src="/Logonew.png" alt="RC Logo" className="h-8 md:h-10 w-auto object-contain shrink-0" />
             <span 
               className="font-serif font-bold text-base md:text-lg tracking-wide hidden sm:inline leading-none pb-0.5"
               style={{

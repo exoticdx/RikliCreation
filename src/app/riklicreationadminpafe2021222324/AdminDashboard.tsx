@@ -626,7 +626,7 @@ export default function AdminDashboard({ categories: initialCategories, products
       {/* Top Navbar */}
       <div className="bg-[#0f1015] border-b border-[#1f2025] px-4 md:px-8 py-4 flex justify-between items-center sticky top-0 z-40">
         <div className="flex items-end space-x-2 pb-1">
-          <img src="/Logo.png" alt="RC Logo" className="h-8 md:h-10 w-auto object-contain shrink-0" />
+          <img src="/Logonew.png" alt="RC Logo" className="h-8 md:h-10 w-auto object-contain shrink-0" />
           <h1 
             className="text-lg md:text-xl font-bold font-serif tracking-wide leading-none pb-0.5"
             style={{

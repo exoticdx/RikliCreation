@@ -17,7 +17,7 @@ export default function GlobalLoading() {
           {/* Center Logo */}
           <div className="w-14 h-14 rounded-full bg-[#0f1015] border border-[#1f2025] flex items-center justify-center overflow-hidden p-2 shadow-lg">
             <img 
-              src="/Logo.png" 
+              src="/Logonew.png" 
               alt={STORE_CONFIG.storeName} 
               className="w-full h-full object-contain"
             />
