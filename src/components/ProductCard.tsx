@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Product } from './CatalogueClient';
 import { MessageCircle } from 'lucide-react';
@@ -11,11 +12,20 @@ interface ProductCardProps {
   onAdd?: () => void;
   onImageClick?: () => void;
   isInCart?: boolean;
+  priority?: boolean;
+  disableLazy?: boolean;
 }
 
-export default function ProductCard({ product, onInquire }: ProductCardProps) {
+export default function ProductCard({
+  product,
+  onInquire,
+  priority = false,
+  disableLazy = false,
+}: ProductCardProps) {
   const router = useRouter();
   const [isOpening, setIsOpening] = useState(false);
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const [useFallbackImg, setUseFallbackImg] = useState(false);
 
   // Auto reset isOpening if navigation finishes or user comes back
   useEffect(() => {
@@ -32,6 +42,16 @@ export default function ProductCard({ product, onInquire }: ProductCardProps) {
   }, [isOpening]);
 
   const displayImage = product.imageUrl;
+  const canOptimizeImage = Boolean(
+    displayImage &&
+      (displayImage.startsWith('https://') || displayImage.startsWith('/')) &&
+      !useFallbackImg
+  );
+
+  useEffect(() => {
+    setIsImageLoaded(false);
+    setUseFallbackImg(false);
+  }, [displayImage]);
 
   // Preserve current query parameters (e.g. ?cat=...) or fallback to product category
   const search = typeof window !== 'undefined' ? window.location.search : '';
@@ -80,11 +100,42 @@ export default function ProductCard({ product, onInquire }: ProductCardProps) {
         }}
       >
         {displayImage ? (
-          <img 
-            src={displayImage} 
-            alt={product.name} 
-            className="w-full h-full object-cover md:group-hover:scale-105 transition-transform duration-500"
-          />
+          <>
+            {!isImageLoaded && (
+              <div className="absolute inset-0 bg-neutral-900 animate-pulse" />
+            )}
+            {canOptimizeImage ? (
+              <Image
+                src={displayImage}
+                alt={product.name}
+                fill
+                sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                quality={75}
+                loading={disableLazy || priority ? 'eager' : 'lazy'}
+                fetchPriority={priority ? 'high' : 'auto'}
+                decoding="async"
+                onLoad={() => setIsImageLoaded(true)}
+                onError={() => {
+                  setUseFallbackImg(true);
+                  setIsImageLoaded(true);
+                }}
+                className={`object-cover md:group-hover:scale-105 transition-all duration-300 ${
+                  isImageLoaded ? 'opacity-100' : 'opacity-0'
+                }`}
+              />
+            ) : (
+              <img 
+                src={displayImage} 
+                alt={product.name}
+                loading={disableLazy || priority ? 'eager' : 'lazy'}
+                decoding="async"
+                onLoad={() => setIsImageLoaded(true)}
+                className={`w-full h-full object-cover md:group-hover:scale-105 transition-all duration-300 ${
+                  isImageLoaded ? 'opacity-100' : 'opacity-0'
+                }`}
+              />
+            )}
+          </>
         ) : (
           <div className="w-full h-full flex items-center justify-center text-neutral-400 font-medium text-sm">
             No Image

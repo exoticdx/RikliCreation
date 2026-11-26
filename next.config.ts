@@ -13,6 +13,17 @@ const nextConfig: NextConfig = {
       ],
     },
   },
+  images: {
+    formats: ['image/webp'],
+    qualities: [75],
+    minimumCacheTTL: 2678400,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
+  },
   allowedDevOrigins: [
     'rcimitation.yeildops.com',
     '192.168.0.110', '192.168.0.110:3000', 'http://192.168.0.110:3000',

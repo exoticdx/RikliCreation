@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ShoppingCart, Search, ArrowUpDown, SlidersHorizontal, X, FileDown, Layers } from 'lucide-react';
 import ProductCard from './ProductCard';
@@ -60,6 +61,26 @@ export default function CatalogueClient({
   const [priceSort, setPriceSort] = useState<'low-to-high' | 'high-to-low'>('low-to-high');
   const [inquiryProduct, setInquiryProduct] = useState<Product | null>(null);
   const [zoomedProduct, setZoomedProduct] = useState<Product | null>(null);
+
+  // Infinite Scroll & Print Optimization
+  const PRODUCTS_PER_PAGE = 24;
+  const [visibleCount, setVisibleCount] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = sessionStorage.getItem('catalogueVisibleCount');
+        const hasScroll = Boolean(sessionStorage.getItem('catalogueScrollPos'));
+        if (raw && hasScroll) {
+          const parsed = JSON.parse(raw);
+          if (parsed?.cat && parsed.cat === (urlCat || sessionStorage.getItem('selectedCategory')) && typeof parsed.count === 'number') {
+            return Math.max(PRODUCTS_PER_PAGE, parsed.count);
+          }
+        }
+      } catch {}
+    }
+    return PRODUCTS_PER_PAGE;
+  });
+  const [isPrintMode, setIsPrintMode] = useState(false);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
 
   // Category Tag Search State
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -124,8 +145,11 @@ export default function CatalogueClient({
 
   const handleSelectCategory = (catId: string) => {
     setSelectedCategory(catId);
+    setVisibleCount(PRODUCTS_PER_PAGE);
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('selectedCategory', catId);
+      sessionStorage.removeItem('catalogueVisibleCount');
+      sessionStorage.removeItem('catalogueScrollPos');
     }
     const params = new URLSearchParams();
     if (catId && catId !== 'all') {
@@ -138,8 +162,10 @@ export default function CatalogueClient({
 
   const handleBackHome = () => {
     setSelectedCategory('all');
+    setVisibleCount(PRODUCTS_PER_PAGE);
     if (typeof window !== 'undefined') {
       sessionStorage.removeItem('selectedCategory');
+      sessionStorage.removeItem('catalogueVisibleCount');
       sessionStorage.removeItem('catalogueScrollPos');
     }
     router.push('/', { scroll: false });
@@ -198,6 +224,53 @@ export default function CatalogueClient({
 
     return filtered;
   }, [inStockProducts, selectedCategory, priceSort]);
+
+  const visibleProducts = useMemo(
+    () => displayProducts.slice(0, visibleCount),
+    [displayProducts, visibleCount]
+  );
+  const hasMoreProducts = visibleCount < displayProducts.length;
+
+  // Persist visibleCount for smooth scroll restoration when returning from a product page
+  useEffect(() => {
+    if (typeof window !== 'undefined' && selectedCategory !== 'all') {
+      sessionStorage.setItem(
+        'catalogueVisibleCount',
+        JSON.stringify({ cat: selectedCategory, count: visibleCount })
+      );
+    }
+  }, [selectedCategory, visibleCount]);
+
+  // Infinite scroll IntersectionObserver (loads next 24 items 500px before bottom)
+  useEffect(() => {
+    if (selectedCategory === 'all' || !hasMoreProducts) return;
+    const el = loadMoreRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setVisibleCount((prev) => Math.min(prev + PRODUCTS_PER_PAGE, displayProducts.length));
+        }
+      },
+      { rootMargin: '500px 0px' }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [selectedCategory, hasMoreProducts, displayProducts.length]);
+
+  // Mount print-only table only when printing so 200+ hidden cards don't bloat normal phone views
+  useEffect(() => {
+    const onBeforePrint = () => setIsPrintMode(true);
+    const onAfterPrint = () => setIsPrintMode(false);
+    window.addEventListener('beforeprint', onBeforePrint);
+    window.addEventListener('afterprint', onAfterPrint);
+    return () => {
+      window.removeEventListener('beforeprint', onBeforePrint);
+      window.removeEventListener('afterprint', onAfterPrint);
+    };
+  }, []);
 
   const handleAddToCartClick = (product: Product) => {
     addToCart(product);
@@ -366,7 +439,11 @@ export default function CatalogueClient({
               <select 
                 id="price-sort"
                 value={priceSort}
-                onChange={e => setPriceSort(e.target.value as 'low-to-high' | 'high-to-low')}
+                onChange={e => {
+                  setPriceSort(e.target.value as 'low-to-high' | 'high-to-low');
+                  setVisibleCount(PRODUCTS_PER_PAGE);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
                 className="text-xs md:text-sm border border-[#1f2025] rounded-lg px-3 py-1.5 bg-[#0f1015] text-white focus:outline-none focus:ring-1 focus:ring-white cursor-pointer font-medium"
               >
                 <option value="low-to-high">Price: Low to High</option>
@@ -443,8 +520,9 @@ export default function CatalogueClient({
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                {filteredCategories.map((cat) => {
+                {filteredCategories.map((cat, idx) => {
                   const productCount = inStockProducts.filter(p => p.categoryId === cat.id).length;
+                  const canOptCatImg = Boolean(cat.imageUrl && (cat.imageUrl.startsWith('https://') || cat.imageUrl.startsWith('/')));
 
                   return (
                     <div 
@@ -453,11 +531,26 @@ export default function CatalogueClient({
                       className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-lg cursor-pointer group border border-[#1f2025] bg-black"
                     >
                       {cat.imageUrl ? (
-                        <img 
-                          src={cat.imageUrl} 
-                          alt={cat.name} 
-                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                        />
+                        canOptCatImg ? (
+                          <Image
+                            src={cat.imageUrl}
+                            alt={cat.name}
+                            fill
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            quality={75}
+                            loading={idx < 3 ? 'eager' : 'lazy'}
+                            decoding="async"
+                            className="object-cover transition-transform duration-700 group-hover:scale-105"
+                          />
+                        ) : (
+                          <img 
+                            src={cat.imageUrl} 
+                            alt={cat.name}
+                            loading={idx < 3 ? 'eager' : 'lazy'}
+                            decoding="async"
+                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                          />
+                        )
                       ) : (
                         <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-neutral-900 to-black flex items-center justify-center">
                           <Layers className="w-16 h-16 text-neutral-700" />
@@ -503,81 +596,112 @@ export default function CatalogueClient({
             </button>
           </div>
         ) : (
-          /* 2. CATALOGUE PRODUCT GRID */
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-            {displayProducts.map(product => (
-              <ProductCard 
-                key={product.id} 
-                product={product} 
-                onInquire={() => {
-                  const message = `Hello ${STORE_CONFIG.storeName}, I want to know more about ${product.name} (SKU: ${product.sku})`;
-                  const url = `https://wa.me/${STORE_CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
-                  window.open(url, '_blank');
-                }}
-                onAdd={() => handleAddToCartClick(product)}
-                onImageClick={() => setZoomedProduct(product)}
-                isInCart={cart.some(item => item.product.id === product.id)}
-              />
-            ))}
+          /* 2. CATALOGUE PRODUCT GRID (Infinite Scroll Batches) */
+          <div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+              {visibleProducts.map((product, idx) => (
+                <ProductCard 
+                  key={product.id} 
+                  product={product}
+                  priority={idx < 4}
+                  onInquire={() => {
+                    const message = `Hello ${STORE_CONFIG.storeName}, I want to know more about ${product.name} (SKU: ${product.sku})`;
+                    const url = `https://wa.me/${STORE_CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
+                    window.open(url, '_blank');
+                  }}
+                  onAdd={() => handleAddToCartClick(product)}
+                  onImageClick={() => setZoomedProduct(product)}
+                  isInCart={cart.some(item => item.product.id === product.id)}
+                />
+              ))}
+            </div>
+
+            {/* Infinite Scroll Sentinel & Status */}
+            <div ref={loadMoreRef} className="mt-8 flex flex-col items-center justify-center py-4 text-center space-y-3">
+              {hasMoreProducts ? (
+                <>
+                  <div className="flex items-center space-x-2 text-xs text-neutral-400">
+                    <div className="w-4 h-4 border-2 border-neutral-500 border-t-white rounded-full animate-spin" />
+                    <span>
+                      Showing {visibleProducts.length} of {displayProducts.length} designs...
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setVisibleCount(prev => Math.min(prev + PRODUCTS_PER_PAGE, displayProducts.length))}
+                    className="px-4 py-2 rounded-lg bg-black border border-[#1f2025] hover:border-neutral-600 text-xs font-medium text-neutral-200 transition-colors cursor-pointer"
+                  >
+                    Load More Designs
+                  </button>
+                </>
+              ) : displayProducts.length > PRODUCTS_PER_PAGE ? (
+                <p className="text-xs text-neutral-500">
+                  Showing all {displayProducts.length} designs
+                </p>
+              ) : null}
+            </div>
           </div>
         )}
         </div>
       </div>
 
-      {/* Print-Only Product Grid with Repeating Header */}
-      <table className="hidden print:table w-full max-w-7xl mx-auto">
-        <thead className="table-header-group">
-          <tr>
-            <td className="pb-6 pt-4">
-              <div className="flex items-end space-x-3 pb-1">
-                <img src="/Logonew.png" alt="Logo" className="h-12 w-auto object-contain shrink-0" />
-                <h1 
-                  className="text-xl font-bold font-serif tracking-wide leading-none pb-1"
-                  style={{
-                    backgroundImage: 'linear-gradient(135deg, #fff5c0 0%, #e8c566 22%, #fff9d6 44%, #aa771c 68%, #fbf3b9 88%, #c59b27 100%)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                  }}
-                >
-                  Imitation Jewellery
-                </h1>
-              </div>
-              <div className="h-px bg-neutral-800 w-full mt-4"></div>
-            </td>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              {printGroups.sortedCategories.length === 0 ? (
-                <div className="text-center py-20 text-white">No products to print.</div>
-              ) : (
-                printGroups.sortedCategories.map(cat => (
-                  <div key={cat} className="mb-12">
-                    <div className="flex items-center gap-4 mb-6">
-                      <h2 className="text-2xl font-bold text-brand whitespace-nowrap">{cat}</h2>
-                      <div className="h-px bg-neutral-300 flex-grow mt-1"></div>
+      {/* Print-Only Product Grid with Repeating Header (mounted only during print) */}
+      {isPrintMode && (
+        <table className="hidden print:table w-full max-w-7xl mx-auto">
+          <thead className="table-header-group">
+            <tr>
+              <td className="pb-6 pt-4">
+                <div className="flex items-end space-x-3 pb-1">
+                  <img src="/Logonew.png" alt="Logo" className="h-12 w-auto object-contain shrink-0" />
+                  <h1 
+                    className="text-xl font-bold font-serif tracking-wide leading-none pb-1"
+                    style={{
+                      backgroundImage: 'linear-gradient(135deg, #fff5c0 0%, #e8c566 22%, #fff9d6 44%, #aa771c 68%, #fbf3b9 88%, #c59b27 100%)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                    }}
+                  >
+                    Imitation Jewellery
+                  </h1>
+                </div>
+                <div className="h-px bg-neutral-800 w-full mt-4"></div>
+              </td>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                {printGroups.sortedCategories.length === 0 ? (
+                  <div className="text-center py-20 text-white">No products to print.</div>
+                ) : (
+                  printGroups.sortedCategories.map(cat => (
+                    <div key={cat} className="mb-12">
+                      <div className="flex items-center gap-4 mb-6">
+                        <h2 className="text-2xl font-bold text-brand whitespace-nowrap">{cat}</h2>
+                        <div className="h-px bg-neutral-300 flex-grow mt-1"></div>
+                      </div>
+                      
+                      <div className="grid grid-cols-3 gap-6">
+                        {printGroups.grouped[cat].map(product => (
+                          <ProductCard 
+                            key={product.id} 
+                            product={product}
+                            disableLazy
+                            onInquire={() => {}}
+                            onAdd={() => {}}
+                            onImageClick={() => {}}
+                            isInCart={false}
+                          />
+                        ))}
+                      </div>
                     </div>
-                    
-                    <div className="grid grid-cols-3 gap-6">
-                      {printGroups.grouped[cat].map(product => (
-                        <ProductCard 
-                          key={product.id} 
-                          product={product} 
-                          onInquire={() => {}}
-                          onAdd={() => {}}
-                          onImageClick={() => {}}
-                          isInCart={false}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                ))
-              )}
-            </td>
-          </tr>
-        </tbody>
-      </table>
+                  ))
+                )}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      )}
 
       {/* Modals/Drawers */}
       {inquiryProduct && (
@@ -659,10 +783,11 @@ export default function CatalogueClient({
                     toast.error('Please select at least one category to export.');
                     return;
                   }
+                  setIsPrintMode(true);
                   setTimeout(() => {
                     window.print();
                     setIsExportModalOpen(false);
-                  }, 100);
+                  }, 150);
                 }}
                 className="px-6 py-2.5 rounded-lg font-medium bg-white text-black hover:bg-neutral-200 transition-colors shadow-sm text-sm"
               >
