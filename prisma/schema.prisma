@@ -16,6 +16,7 @@ model Category {
   imageUrl String?
   tags     String?
   order    Int?      @default(0)
+  isHidden Boolean   @default(false)
   products Product[]
 }
 

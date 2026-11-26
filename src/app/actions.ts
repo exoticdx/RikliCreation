@@ -92,7 +92,42 @@ export async function logoutAdmin() {
   return { success: true };
 }
 
-export async function addCategory(name: string, imageUrl: string = '', tags: string = '') {
+async function syncHiddenCategoryOption(id: string, isHidden: boolean) {
+  try {
+    const { data: existing } = await supabase
+      .from('FieldOption')
+      .select('id, value')
+      .eq('fieldKey', 'hidden_categories')
+      .single();
+
+    let hiddenList: string[] = [];
+    if (existing?.value) {
+      try {
+        const parsed = JSON.parse(existing.value);
+        if (Array.isArray(parsed)) hiddenList = parsed.map(String);
+      } catch {}
+    }
+
+    const updatedList = isHidden
+      ? Array.from(new Set([...hiddenList, id]))
+      : hiddenList.filter((catId) => catId !== id);
+
+    const serialized = JSON.stringify(updatedList);
+    if (existing) {
+      await supabase.from('FieldOption').update({ value: serialized }).eq('id', existing.id);
+    } else if (isHidden) {
+      const optId = 'o' + Math.random().toString(36).substr(2, 9);
+      await supabase.from('FieldOption').insert([{ id: optId, fieldKey: 'hidden_categories', value: serialized }]);
+    }
+  } catch {}
+
+  // Also sync optional isHidden column on Category if it exists
+  try {
+    await supabase.from('Category').update({ isHidden }).eq('id', id);
+  } catch {}
+}
+
+export async function addCategory(name: string, imageUrl: string = '', tags: string = '', isHidden: boolean = false) {
   await checkAuth();
   const id = 'c' + Math.random().toString(36).substr(2, 9);
   const cleanTags = typeof tags === 'string' ? tags.trim() : Array.isArray(tags) ? (tags as string[]).join(', ') : '';
@@ -125,6 +160,10 @@ export async function addCategory(name: string, imageUrl: string = '', tags: str
     await supabase.from('FieldOption').insert([{ id: optId, fieldKey: `cat_tags_${id}`, value: cleanTags }]);
   }
 
+  if (isHidden) {
+    await syncHiddenCategoryOption(id, true);
+  }
+
   // Append new category to category_order list if present
   try {
     const { data: existingOrder } = await supabase.from('FieldOption').select('id, value').eq('fieldKey', 'category_order').single();
@@ -141,7 +180,7 @@ export async function addCategory(name: string, imageUrl: string = '', tags: str
   revalidatePath('/riklicreationadminpafe2021222324');
 }
 
-export async function updateCategory(id: string, name: string, imageUrl: string = '', tags: string = '') {
+export async function updateCategory(id: string, name: string, imageUrl: string = '', tags: string = '', isHidden?: boolean) {
   await checkAuth();
   const cleanTags = typeof tags === 'string' ? tags.trim() : Array.isArray(tags) ? (tags as string[]).join(', ') : '';
   
@@ -178,8 +217,20 @@ export async function updateCategory(id: string, name: string, imageUrl: string 
     await supabase.from('FieldOption').insert([{ id: optId, fieldKey: `cat_tags_${id}`, value: cleanTags }]);
   }
 
+  if (typeof isHidden === 'boolean') {
+    await syncHiddenCategoryOption(id, isHidden);
+  }
+
   revalidatePath('/');
   revalidatePath('/riklicreationadminpafe2021222324');
+}
+
+export async function toggleCategoryVisibility(id: string, isHidden: boolean) {
+  await checkAuth();
+  await syncHiddenCategoryOption(id, isHidden);
+  revalidatePath('/');
+  revalidatePath('/riklicreationadminpafe2021222324');
+  return { success: true };
 }
 
 export async function deleteCategory(id: string) {
@@ -188,6 +239,7 @@ export async function deleteCategory(id: string) {
   await supabase.from('Category').delete().eq('id', id);
   await supabase.from('FieldOption').delete().eq('fieldKey', `cat_img_${id}`);
   await supabase.from('FieldOption').delete().eq('fieldKey', `cat_tags_${id}`);
+  await syncHiddenCategoryOption(id, false);
 
   // Remove deleted category from category_order list if present
   try {

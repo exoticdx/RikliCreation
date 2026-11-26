@@ -29,6 +29,7 @@ export type Category = {
   name: string;
   imageUrl?: string;
   tags?: string[] | string;
+  isHidden?: boolean;
 };
 
 export interface CartItem {
@@ -88,7 +89,7 @@ export default function CatalogueClient({
   useEffect(() => {
     const currentCat = searchParams.get('cat');
 
-    if (currentCat) {
+    if (currentCat && categories.some(c => c.id === currentCat)) {
       setSelectedCategory(currentCat);
       sessionStorage.setItem('selectedCategory', currentCat);
     } else {

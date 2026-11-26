@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { addCategory, updateCategory, deleteCategory, reorderCategories, addProduct, updateProduct, deleteProduct, bulkAddProducts, logoutAdmin, addFieldOption, deleteFieldOption } from '../actions';
-import { Trash2, Plus, Upload, Download, AlertCircle, LogOut, X, Edit, Link as LinkIcon, Copy, Layers, Image as ImageIcon, ChevronUp, ChevronDown, GripVertical, Star, ArrowLeft, ArrowRight } from 'lucide-react';
+import { addCategory, updateCategory, deleteCategory, reorderCategories, toggleCategoryVisibility, addProduct, updateProduct, deleteProduct, bulkAddProducts, logoutAdmin, addFieldOption, deleteFieldOption } from '../actions';
+import { Trash2, Plus, Upload, Download, AlertCircle, LogOut, X, Edit, Link as LinkIcon, Copy, Layers, Image as ImageIcon, ChevronUp, ChevronDown, GripVertical, Star, ArrowLeft, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import ExcelJS from 'exceljs';
 import toast from 'react-hot-toast';
 import { STORE_CONFIG } from '@/config/store.config';
@@ -24,6 +24,8 @@ export default function AdminDashboard({ categories: initialCategories, products
   const [newCategoryName, setNewCategoryName] = useState('');
   const [newCategoryImage, setNewCategoryImage] = useState('');
   const [newCategoryTags, setNewCategoryTags] = useState('');
+  const [newCategoryHidden, setNewCategoryHidden] = useState(false);
+  const [togglingVisibilityId, setTogglingVisibilityId] = useState<string | null>(null);
   const [isUploadingCatImage, setIsUploadingCatImage] = useState(false);
   
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
@@ -210,6 +212,7 @@ export default function AdminDashboard({ categories: initialCategories, products
     setNewCategoryImage(category.imageUrl || '');
     const tagsStr = Array.isArray(category.tags) ? category.tags.join(', ') : (category.tags || '');
     setNewCategoryTags(tagsStr);
+    setNewCategoryHidden(Boolean(category.isHidden));
   };
 
   const handleCancelCategoryEdit = () => {
@@ -217,6 +220,7 @@ export default function AdminDashboard({ categories: initialCategories, products
     setNewCategoryName('');
     setNewCategoryImage('');
     setNewCategoryTags('');
+    setNewCategoryHidden(false);
   };
 
   const handleSaveCategory = async () => {
@@ -228,18 +232,39 @@ export default function AdminDashboard({ categories: initialCategories, products
     const t = toast.loading(editingCategoryId ? 'Updating category...' : 'Adding category...');
     try {
       if (editingCategoryId) {
-        await updateCategory(editingCategoryId, trimmed, newCategoryImage, newCategoryTags);
+        await updateCategory(editingCategoryId, trimmed, newCategoryImage, newCategoryTags, newCategoryHidden);
         toast.success('Category updated successfully', { id: t });
       } else {
-        await addCategory(trimmed, newCategoryImage, newCategoryTags);
+        await addCategory(trimmed, newCategoryImage, newCategoryTags, newCategoryHidden);
         toast.success('Category added successfully', { id: t });
       }
       setEditingCategoryId(null);
       setNewCategoryName('');
       setNewCategoryImage('');
       setNewCategoryTags('');
+      setNewCategoryHidden(false);
     } catch {
       toast.error(editingCategoryId ? 'Failed to update category' : 'Failed to add category', { id: t });
+    }
+  };
+
+  const handleToggleCategoryVisibility = async (category: any) => {
+    const nextHidden = !category.isHidden;
+    const prevCategories = categories;
+    setCategories(prev => prev.map(c => (c.id === category.id ? { ...c, isHidden: nextHidden } : c)));
+    setTogglingVisibilityId(category.id);
+
+    try {
+      await toggleCategoryVisibility(category.id, nextHidden);
+      if (editingCategoryId === category.id) {
+        setNewCategoryHidden(nextHidden);
+      }
+      toast.success(nextHidden ? `"${category.name}" hidden from user panel` : `"${category.name}" is now visible on user panel`);
+    } catch {
+      setCategories(prevCategories);
+      toast.error('Failed to update category visibility');
+    } finally {
+      setTogglingVisibilityId(null);
     }
   };
 
@@ -929,6 +954,19 @@ export default function AdminDashboard({ categories: initialCategories, products
                   </p>
                 </div>
 
+                <label className="flex items-center justify-between p-2.5 rounded-lg bg-[#0f1015] border border-[#1f2025] cursor-pointer hover:border-neutral-700 transition-colors">
+                  <div className="flex items-center space-x-2">
+                    <EyeOff className="w-4 h-4 text-neutral-400" />
+                    <span className="text-xs font-medium text-neutral-200">Hide from User Panel</span>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={newCategoryHidden}
+                    onChange={e => setNewCategoryHidden(e.target.checked)}
+                    className="w-4 h-4 accent-amber-500 rounded cursor-pointer"
+                  />
+                </label>
+
                 <div className="flex gap-2 mt-3">
                   {editingCategoryId && (
                     <button 
@@ -963,6 +1001,11 @@ export default function AdminDashboard({ categories: initialCategories, products
                   <div>
                     <h3 className="text-sm font-semibold text-neutral-300">
                       Existing Categories ({categories.length})
+                      {categories.some(c => c.isHidden) && (
+                        <span className="ml-2 text-xs font-normal text-amber-400">
+                          · {categories.filter(c => c.isHidden).length} hidden
+                        </span>
+                      )}
                     </h3>
                     <p className="text-[11px] text-neutral-500">
                       Drag or use arrows to change the order on the homepage.
@@ -1017,7 +1060,16 @@ export default function AdminDashboard({ categories: initialCategories, products
                           )}
 
                           <div className="min-w-0">
-                            <span className="font-medium text-sm block truncate text-white">{c.name}</span>
+                            <div className="flex items-center gap-1.5 min-w-0">
+                              <span className={`font-medium text-sm block truncate ${c.isHidden ? 'text-neutral-400' : 'text-white'}`}>
+                                {c.name}
+                              </span>
+                              {c.isHidden && (
+                                <span className="inline-flex items-center gap-1 text-[10px] font-medium bg-amber-500/15 text-amber-300 border border-amber-500/30 px-1.5 py-0.5 rounded shrink-0">
+                                  <EyeOff className="w-2.5 h-2.5" /> Hidden
+                                </span>
+                              )}
+                            </div>
                             <span className="text-[11px] text-neutral-400 block">{count} product(s)</span>
                             {c.tags && (Array.isArray(c.tags) ? c.tags.length > 0 : Boolean(c.tags)) && (
                               <div className="flex flex-wrap gap-1 mt-1">
@@ -1053,6 +1105,20 @@ export default function AdminDashboard({ categories: initialCategories, products
                           </button>
                           
                           <div className="h-4 w-px bg-[#1f2025] mx-1"></div>
+
+                          <button
+                            type="button"
+                            disabled={togglingVisibilityId === c.id}
+                            onClick={() => handleToggleCategoryVisibility(c)}
+                            className={`p-1.5 rounded-lg transition-colors cursor-pointer disabled:opacity-50 ${
+                              c.isHidden
+                                ? 'text-amber-400 hover:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20'
+                                : 'text-neutral-400 hover:text-white hover:bg-neutral-800'
+                            }`}
+                            title={c.isHidden ? 'Show on User Panel' : 'Hide from User Panel'}
+                          >
+                            {c.isHidden ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
 
                           <button 
                             type="button"
